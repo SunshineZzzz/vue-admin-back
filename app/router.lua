@@ -1,13 +1,9 @@
--- 业务路由管理
-local userRouter = require("app.routes.user")
+-- Comment: 路由管理相关
+
+local loginRouter = require("app.routes.login")
+-- local userRouter = require("app.routes.user")
 
 return function(app)
-
-	-- simple router: hello world!
-	app:get("/hello", function(req, res, next)
-		res:send("hi! welcome to lor framework.")
-	end)
-
 	-- simple router: render html, visit "/" or "/?name=foo&desc=bar
 	app:get("/", function(req, res, next)
 		local data = {
@@ -17,7 +13,8 @@ return function(app)
 		res:render("index", data)
 	end)
 
+	app:use("/login", loginRouter())
 	-- group router: 对以`/user`开始的请求做过滤处理
-	app:use("/user", userRouter())
+	-- app:use("/user", userRouter())
 end
 
