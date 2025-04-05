@@ -1,24 +1,31 @@
+-- Comment: 服务实现
+
 local string_find = string.find
 local lor = require("lor.index")
 local router = require("app.router")
+local config = require("app.config.config")
+local view_config = config.view
 local app = lor()
+local http_code = require("app.config.return_code").http
+local http_not_found = ngx.HTTP_NOT_FOUND
+local http_inner_error = ngx.HTTP_INTERNAL_SERVER_ERROR
 
 -- 模板配置
-app:conf("view enable", true)
-app:conf("view engine", "tmpl")
-app:conf("view ext", "html")
-app:conf("view layout", "")
-app:conf("views", "./app/views")
+app:conf("view enable", view_config.enable)
+app:conf("view engine", view_config.engine)
+app:conf("view ext", view_config.ext)
+app:conf("view layout", view_config.layout)
+app:conf("views", view_config.views)
 
 -- session和cookie支持，如果不需要可注释以下配置
 local mw_cookie = require("lor.lib.middleware.cookie")
 local mw_session = require("lor.lib.middleware.session")
 app:use(mw_cookie())
-app:use(mw_session({
-	session_key = "__app__", -- the key injected in cookie
-	session_aes_key = "aes_key_for_session", -- should set by yourself
-	timeout = 3600 -- default session timeout is 3600 seconds
-}))
+-- app:use(mw_session({
+-- 	session_key = "__app__", -- the key injected in cookie
+-- 	session_aes_key = "aes_key_for_session", -- should set by yourself
+-- 	timeout = 3600 -- default session timeout is 3600 seconds
+-- }))
 
 -- 自定义中间件1: 注入一些全局变量供模板渲染使用
 local mw_inject_version = require("app.middleware.inject_app_info")
@@ -37,23 +44,9 @@ app:erroruse(function(err, req, res, next)
 	ngx.log(ngx.ERR, err)
 
 	if req:is_found() ~= true then
-		if string_find(req.headers["Accept"], "application/json") then
-			res:status(404):json({
-				success = false,
-				msg = "404! sorry, not found."
-			})
-		else
-			res:status(404):send("404! sorry, not found. " .. (req.path or ""))
-		end
+		res:status(http_not_found):json(http_code.notFind_error)
 	else
-		if string_find(req.headers["Accept"], "application/json") then
-			res:status(500):json({
-				success = false,
-				msg = "500! internal error, please check the log."
-			})
-		else
-			res:status(500):send("internal error, please check the log.")
-		end
+		res:status(http_inner_error):json(http_code.inner_error)
 	end
 end)
 
