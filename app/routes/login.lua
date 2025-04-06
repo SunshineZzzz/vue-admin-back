@@ -5,13 +5,8 @@ local loginRouter = lor:Router()
 local login = require("app.model.login")
 
 -- 注册
-loginRouter:post("/register", function(req, res, next)
-	login.register(req, res, next)
-end)
-
+loginRouter:post("/register", login.register)
 -- 登录
-loginRouter:post('/login', function(req, res, next)
-	login.login(req, res, next)
-end)
+loginRouter:post('/login', login.login)
 
 return loginRouter
