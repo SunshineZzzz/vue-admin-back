@@ -39,7 +39,6 @@ end
 
 -- 身份转化为对应字符串
 function Utils.switch_identity(identify)
-	print(identify)
 	if identify == define_user_identity.normal then
 		return "用户"
 	else
