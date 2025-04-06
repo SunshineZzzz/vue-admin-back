@@ -2,6 +2,17 @@
 
 -- 返回配置
 return {
+	-- 上传
+	upload = {
+		-- 上传路径
+		dir = "./app/static/upload",
+		-- 对外上传路径
+		outDir = "/static/upload",
+		-- 分块大小
+		chunk_size = 4 * 1024,
+		-- 上传超时，单位s
+		recieve_timeout = 60 * 1000,
+	},
 	-- mysql配置
 	mysql = {
 		-- 地址
