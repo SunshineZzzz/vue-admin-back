@@ -7,6 +7,8 @@ return {
 		jwtSecretKey = "sunshinez",
 		-- jwt过期时间
 		jwtExp = 1 * 3600,
+		-- 头像上传目录
+		avatarDir = "avatar",
 	},
 	-- 用户身份
 	user_identity = {
