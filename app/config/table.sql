@@ -13,7 +13,7 @@ create table `users` (
   `update_time` bigint(20) not null default 0 comment '更新时间',
   `status` int(10) unsigned not null default 0 comment '目前所处状态',
   primary key (`id`),
-  unique key (`name`),
+  unique key (`account`),
   key `identity` (`identity`),
   key `department` (`department`)
 ) engine=innodb default charset=utf8mb4;
