@@ -19,13 +19,21 @@ app:conf("views", view_config.views)
 
 -- session和cookie支持，如果不需要可注释以下配置
 local mw_cookie = require("lor.lib.middleware.cookie")
-local mw_session = require("lor.lib.middleware.session")
+-- local mw_session = require("lor.lib.middleware.session")
 app:use(mw_cookie())
 -- app:use(mw_session({
 -- 	session_key = "__app__", -- the key injected in cookie
 -- 	session_aes_key = "aes_key_for_session", -- should set by yourself
 -- 	timeout = 3600 -- default session timeout is 3600 seconds
 -- }))
+-- jwt支持，如果不需要可注释以下配置
+local define_misc = require("app.config.define").misc
+local mw_jet = require("lor.lib.middleware.jwt")
+app:use(mw_jet({
+	key = define_misc.jwtSecretKey,
+	exclude = {"^/login/"}, --"^/api/"},
+	notToken = http_code.unauthorized_error,
+}))
 
 -- 自定义中间件1: 注入一些全局变量供模板渲染使用
 local mw_inject_version = require("app.middleware.inject_app_info")
