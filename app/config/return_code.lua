@@ -2,20 +2,28 @@
 
 local tonumber = tonumber
 local utils = require("app.utils.utils")
+local http_not_found = ngx.HTTP_NOT_FOUND
+local http_inner_error = ngx.HTTP_INTERNAL_SERVER_ERROR
+local http_unauthorized = ngx.HTTP_UNAUTHORIZED
 
 local return_codes = {
 	-- http
 	http = {
 		-- 未找到
 		notFind_error = {
-			status = 404,
+			status = http_not_found,
 			message = "404! sorry, not found.",
 		},
 		-- 内部错误
 		inner_error = {
-			status = 500,
+			status = http_inner_error,
 			message = "内部错误",
 		},
+		-- 未授权
+		unauthorized_error = {
+			status = http_unauthorized,
+			message = "未授权，请登录",
+		}
 	},
 	-- 登录
 	login = {
@@ -53,7 +61,7 @@ local return_codes = {
 		-- 内部错误
 		inner_error = {
 			status = 3,
-			message = "内部错误",		
+			message = "内部错误",
 		},
 		-- 登录失败
 		login_fail = {
@@ -93,7 +101,21 @@ local return_codes = {
 			status = 4,
 			message = "账号已经存在",
 		},
-	}
+	},
+	-- 上传头像
+	upload_avatar = {
+		-- 成功
+		success = {
+			status = 0,
+			message = "成功",
+			data = {},
+		},
+		-- 上传失败
+		upload_fail = {
+			status = 1,
+			message = "上传失败",
+		},
+	},
 }
 
 return return_codes
