@@ -2,6 +2,8 @@
 
 local sgmatch = ngx.re.gmatch
 local define_user_identity = require("app.config.define").user_identity
+local define_user_department = require("app.config.define").user_department
+local define_message_level = require("app.config.define").message_level
 
 local Utils = {}
 
@@ -41,14 +43,30 @@ end
 function Utils.switch_identity(identify)
 	if identify == define_user_identity.normal then
 		return "用户"
+	elseif identify == define_user_identity.userMgr then
+		return "用户管理员"
+	elseif identify == define_user_identity.productMgr then
+		return "产品管理员"
 	else
-		return ""
+		-- define_user_identity.root
+		return "超级管理员"
 	end
 end
 
--- 部门转化为对应字符串
-function Utils.switch_department(department)
-	return ""
+-- 身份字符串转化为对应类型
+function Utils.switch_identity_str(identify)
+	if identify == "用户" then
+		return define_user_identity.normal
+	elseif identify == "用户管理员" then
+		return define_user_identity.userMgr
+	elseif identify == "产品管理员" then
+		return define_user_identity.productMgr
+	elseif identify == "消息管理员" then
+		return define_user_identity.messageMgr
+	else
+		-- 超级管理员
+		return define_user_identity.root
+	end
 end
 
 -- 性别转化为对应字符串
@@ -60,6 +78,17 @@ function Utils.switch_sex(sex)
 		return "男"
 	end
 	return "女"
+end
+
+-- 消息等级转化为对应字符串
+function Utils.switch_message_level(level)
+	if level == define_message_level.normal then
+		return "一般"
+	end
+	if level == define_message_level.important then
+		return "重要"
+	end
+	return "必要"
 end
 
 return Utils
