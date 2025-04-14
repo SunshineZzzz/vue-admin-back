@@ -1,4 +1,5 @@
 # lor
+app/static/upload/
 client_body_temp
 fastcgi_temp
 logs
