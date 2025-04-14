@@ -9,6 +9,31 @@ local http_inner_error = ngx.HTTP_INTERNAL_SERVER_ERROR
 local http_unauthorized = ngx.HTTP_UNAUTHORIZED
 local lor_utils = require("lor.lib.utils.utils")
 
+local parese_message = function(dest, src)
+	dest.messageArr = {}
+	if not src or#src == 0 then
+		return
+	end
+	for _, v in ipairs(src) do
+		table_insert(dest.messageArr, 
+		{
+			id = v.id,
+			msg_id = v.msg_id,
+			category = v.category,
+			title = v.title,
+			content = v.content,
+			create_time = tonumber(v.create_time),
+			update_time = tonumber(v.update_time),
+			delete_time = tonumber(v.delete_time),
+			department = v.department,
+			name = v.name,
+			level = utils.switch_message_level(v.level),
+			status = v.status,
+			click_num = v.click_num,
+		})
+	end
+end
+
 -- TODO，应该把公共错误提取出来
 local return_codes = {
 	-- http
@@ -872,29 +897,57 @@ local return_codes = {
 			data = {},
 		},
 		-- 生成成功信息
+		gen_success_data = parese_message,
+		-- 参数错误
+		params_error = {
+			status = 1,
+			message = "参数错误",
+		},
+		-- 数据库错误
+		db_error = {
+			status = 2,
+			message = "数据库错误",
+		},
+	},
+	-- 获取用户部门信息ids
+	get_userDepartmentIds = {
+		-- 成功
+		success = {
+			status = 0,
+			message = "成功",
+			data = {},
+		},
+		-- 生成成功信息
 		gen_success_data = function(dest, src)
-			dest.messageArr = {}
-			if #src == 0 then
+			dest.idArr = {}
+			if not src or #src == 0 then
 				return
 			end
 			for _, v in ipairs(src) do
-				table_insert(dest.messageArr, 
-				{
-					msg_id = v.msg_id,
-					category = v.category,
-					title = v.title,
-					content = v.content,
-					create_time = tonumber(v.create_time),
-					update_time = tonumber(v.update_time),
-					delete_time = tonumber(v.delete_time),
-					department = v.department,
-					name = v.name,
-					level = utils.switch_message_level(v.level),
-					status = v.status,
-					click_num = v.click_num,
-				})
+				table_insert(dest.idArr, v.msg_id)
 			end
 		end,
+		-- 参数错误
+		params_error = {
+			status = 1,
+			message = "参数错误",
+		},
+		-- 数据库错误
+		db_error = {
+			status = 2,
+			message = "数据库错误",
+		},
+	},
+	-- 根据Ids获取部门消息
+	get_departmentMsgByIds = {
+		-- 成功
+		success = {
+			status = 0,
+			message = "成功",
+			data = {},
+		},
+		-- 生成成功信息
+		gen_success_data = parese_message,
 		-- 参数错误
 		params_error = {
 			status = 1,

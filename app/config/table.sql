@@ -90,5 +90,5 @@ create table `user_message_id` (
   `user_id` bigint(20) not null default 0 comment '用户id',
   `department` varchar(255) not null default '' comment '部门',
   `read_msg_id` bigint(20) not null default 0 comment '已读消息id',
-  primary key (`user_id`, `read_msg_id`)
+  primary key (`user_id`, `department`)
 ) engine=innodb default charset=utf8mb4;
