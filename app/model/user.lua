@@ -36,6 +36,8 @@ local pw = require("lor.lib.utils.password")
 local define_user_identity = require("app.config.define").user_identity
 local define_user_status = require("app.config.define").user_status
 
+-- TODO 参数不安全，后续优化
+
 local M = {}
 
 -- 上传头像 & 上传头像返回

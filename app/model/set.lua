@@ -385,7 +385,7 @@ function M.getProduct(req, res, next)
 		return
 	end
 
-	local ress, err = mdb:select("select * from `setting` where `category`=?", define_setting_type.product)
+	local ress, err = mdb:select("select * from `setting` where `category`=?", define_setting_type.productType)
 	if not ress then
 		res:status(http_inner_error):json(get_product_code.db_error)
 		ngx_log(ngx_err, "set model get product select setting error:", err)

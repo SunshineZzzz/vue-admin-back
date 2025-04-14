@@ -30,7 +30,7 @@ function M.getCategoryAndTotalPrice(req, res, next)
         return
     end
 
-    local ress, err = mdb:select("select `value` from `setting` where `category`=?", define_setting_type.product)
+    local ress, err = mdb:select("select `value` from `setting` where `category`=?", define_setting_type.productType)
     if not ress then
         res:status(http_inner_error):json(get_categoryAndTotalPrice_code.db_error)
         ngx_log(ngx_err, "overview model get category and total price select setting error:", err)

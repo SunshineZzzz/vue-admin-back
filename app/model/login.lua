@@ -74,7 +74,7 @@ function M.login(req, res, next)
 		return
 	end
 
-	_, err = mdb:update("update `users` set `login_time`=? where `account`=?", os_time(), account)
+	local _, err = mdb:update("update `users` set `login_time`=? where `account`=?", os_time(), account)
 	if err then
 		ngx_log(ngx_err, "login model login update users error:", err)
 	end

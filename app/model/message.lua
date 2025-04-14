@@ -51,17 +51,15 @@ function M.publishMessage(req, res, next)
 	
 	local ress, err = mdb:tx_update(mysql_driver, "insert into `gen_message_id` (`department`,`msg_id`) values(?, 1) on duplicate key update msg_id = msg_id + 1", department)
 	if not ress then
-		local _, rErr = mdb:rollback(mysql_driver)
 		res:status(http_inner_error):json(publish_message_code.db_error)
-		ngx_log(ngx_err, "message model publish message insert gen_message_id error:", err, ", rollback error:", rErr)
+		ngx_log(ngx_err, "message model publish message insert gen_message_id error:", err)
 		return
 	end
 
 	local ress, err = mdb:tx_select(mysql_driver, "select `msg_id` from `gen_message_id` where `department`=?", department)
 	if not ress then
-		local _, rErr = mdb:rollback(mysql_driver)
 		res:status(http_inner_error):json(publish_message_code.db_error)
-		ngx_log(ngx_err, "message model publish message select gen_message_id error:", err, ", rollback error:", rErr)
+		ngx_log(ngx_err, "message model publish message select gen_message_id error:", err)
 		return
 	end
 
