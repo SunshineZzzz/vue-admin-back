@@ -2,6 +2,8 @@
 
 local loginRouter = require("app.routes.login")
 local userRouter = require("app.routes.user")
+local setRouter = require("app.routes.set")
+local messageRouter = require("app.routes.message")
 
 return function(app)
 	app:get("/", function(req, res, next)
@@ -14,5 +16,7 @@ return function(app)
 
 	app:use("/login", loginRouter())
 	app:use("/user", userRouter())
+	app:use("/set", setRouter())
+	app:use("/message", messageRouter())
 end
 
