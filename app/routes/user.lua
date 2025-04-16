@@ -19,8 +19,8 @@ userRouter:post('/changeEmail', user.change_email)
 -- 以下是用户管理相关
 -- 添加管理员
 userRouter:post('/createAdmin', user.createAdmin)
--- 获取管理员列表
-userRouter:post('/getAdminList', user.getAdminList)
+-- 获取对应身份的总数
+userRouter:post('/getIdentityNumber', user.getIdentityNumber)
 -- 编辑管理员账号信息
 userRouter:post('/editAdmin', user.editAdmin)
 -- 修改用户身份

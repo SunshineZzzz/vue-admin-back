@@ -22,6 +22,7 @@ local M = {}
 
 -- 发布消息
 function M.publishMessage(req, res, next)
+	local id = req.jwt.id
 	local title = req.body.title
 	local content = req.body.content
 	local category = req.body.category
@@ -71,8 +72,8 @@ function M.publishMessage(req, res, next)
 	end
 
 	local msg_id = ress[1][1]["msg_id"]
-	local ress, err = mdb:insert("insert into `message` set `msg_id`=?,`category`=?,`title`=?,`content`=?,`create_time`=?,`update_time`=?,`delete_time`=?,`department`=?,`name`=?,`level`=?,`status`=?,`click_num`=?", 
-		msg_id, category, title, content, os_time(), os_time(), 0, department, name, level, define_message_status.normal, 0)
+	local ress, err = mdb:insert("insert into `message` set `msg_id`=?,`category`=?,`title`=?,`content`=?,`create_time`=?,`update_time`=?,`delete_time`=?,`department`=?,`name`=?,`user_id`=?,`level`=?,`status`=?,`click_num`=?", 
+		msg_id, category, title, content, os_time(), os_time(), 0, department, name, id, level, define_message_status.normal, 0)
 	if not ress then
 		res:status(http_inner_error):json(publish_message_code.db_error)
 		ngx_log(ngx_err, "message model publish message insert message error:", err)

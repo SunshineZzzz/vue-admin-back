@@ -72,7 +72,7 @@ function M.getUserDepartmentIds(req, res, next)
 		local _, err = mdb:commit(mysql_driver)
 	    get_userDepartmentIds_code.gen_success_data(get_userDepartmentIds_code.success.data, nil)
 	    res:status(http_ok):json(get_userDepartmentIds_code.success)
-	    ngx_log(ngx_info, "dm model get user department ids success1, commit error:", err)
+	    ngx_log(ngx_info, "dm model get user department ids success2, commit error:", err)
 	    return
 	end
 
@@ -99,7 +99,7 @@ function M.getUserDepartmentIds(req, res, next)
 
 	get_userDepartmentIds_code.gen_success_data(get_userDepartmentIds_code.success.data, ress[1])
 	res:status(http_ok):json(get_userDepartmentIds_code.success)
-	ngx_log(ngx_info, "dm model get user department ids success2")
+	ngx_log(ngx_info, "dm model get user department ids success3")
 end
 
 -- 根据Ids获取部门消息

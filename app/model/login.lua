@@ -26,6 +26,8 @@ local define_misc = require("app.config.define").misc
 local jwtSecretKey = define_misc.jwtSecretKey
 local jwtExp = define_misc.jwtExp
 local tempJwtExp = define_misc.tempJwtExp
+local define_log_type = require("app.config.define").log_type
+local define_log_level = require("app.config.define").log_level
 
 local M = {}
 
@@ -94,7 +96,15 @@ function M.login(req, res, next)
 
 	login_code.gen_success_data(login_code.success.data, ress[1][1], token)
 	res:status(http_ok):json(login_code.success)
-	ngx_log(ngx_info, "login model register success, data:", lor_utils.json_encode(login_code.success.data))
+	local content = lor_utils.json_encode(login_code.success.data)
+	ngx_log(ngx_info, "login model register success, data:", content)
+	res:eof()
+
+	-- 记录登录日志
+	_, err = mdb:insert("insert into `log` set `user_id`=?,`name`=?,`category`=?,`content`=?,`time`=?,`level`=?", ress[1][1]["id"], ress[1][1]["name"], define_log_type.login, content, os_time(), define_log_level.low)
+	if err then
+		ngx_log(ngx_err, "login model login insert log error:", err)
+	end
 end
 
 -- 注册

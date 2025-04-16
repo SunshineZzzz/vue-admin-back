@@ -4,6 +4,7 @@ local sgmatch = ngx.re.gmatch
 local define_user_identity = require("app.config.define").user_identity
 local define_user_department = require("app.config.define").user_department
 local define_message_level = require("app.config.define").message_level
+local define_log_level = require("app.config.define").log_level
 
 local Utils = {}
 
@@ -47,6 +48,8 @@ function Utils.switch_identity(identify)
 		return "用户管理员"
 	elseif identify == define_user_identity.productMgr then
 		return "产品管理员"
+	elseif identify == define_user_identity.messageMgr then
+		return "消息管理员"
 	else
 		-- define_user_identity.root
 		return "超级管理员"
@@ -89,6 +92,17 @@ function Utils.switch_message_level(level)
 		return "重要"
 	end
 	return "必要"
+end
+
+-- 日志等级转化为对应字符串
+function Utils.switch_log_level(level)
+	if level == define_log_level.low then
+		return "低级"
+	end
+	if level == define_log_level.important then
+		return "中级"
+	end
+	return "高级"
 end
 
 return Utils

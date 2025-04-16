@@ -1,6 +1,7 @@
 -- Comment: 用户业务
 
 local string_format = string.format
+local tonumber = tonumber
 local os_time = os.time
 local tostring = tostring
 local http_ok = ngx.HTTP_OK
@@ -21,7 +22,7 @@ local change_name_code = require("app.config.return_code").change_name
 local change_sex_code = require("app.config.return_code").change_sex
 local change_email_code = require("app.config.return_code").change_email
 local create_admin_code = require("app.config.return_code").create_admin
-local get_admin_list_code = require("app.config.return_code").get_admin_list
+local get_identity_number_code = require("app.config.return_code").get_identity_number
 local edit_admin_code = require("app.config.return_code").edit_admin
 local change_identity_code = require("app.config.return_code").change_identity
 local search_user_code = require("app.config.return_code").search_user
@@ -30,11 +31,13 @@ local hot_user_code = require("app.config.return_code").hot_user
 local get_ban_list_code = require("app.config.return_code").get_ban_list
 local delete_user_code = require("app.config.return_code").delete_user
 local batch_get_user_code = require("app.config.return_code").batch_get_user
+local ban_user_code = require("app.config.return_code").ban_user
 local define_misc = require("app.config.define").misc
 local avatar_dir = define_misc.avatarDir
 local pw = require("lor.lib.utils.password")
 local define_user_identity = require("app.config.define").user_identity
 local define_user_status = require("app.config.define").user_status
+local utils = require("app.utils.utils")
 
 -- TODO 参数不安全，后续优化
 
@@ -296,7 +299,7 @@ function M.createAdmin(req, res, next)
 
 	local hashed_password = pw.hash_password(password)
 	ress, err = mdb:insert("insert into `users` set `account`=?,`password`=?,`identity`=?,`department`=?,`name`=?,`sex`=?,`email`=?,`create_time`=?,`update_time`=?,`status`=?", 
-		account, hashed_password, define_user_identity.root, utils.switch_department_str(department), name, sex, email, os_time(), os_time(), define_user_status.normal)
+		account, hashed_password, define_user_identity.root, department, name, sex, email, os_time(), os_time(), define_user_status.normal)
 	if not ress or ress[1].affected_rows ~= 1 then
 		res:status(http_inner_error):json(create_admin_code.db_error)
 		ngx_log(ngx_err, "user model create admin insert admin error:", err)
@@ -307,25 +310,33 @@ function M.createAdmin(req, res, next)
 	ngx_log(ngx_info, "user model create admin success")
 end
 
--- 获取管理员列表
-function M.getAdminList(req, res, next)
+-- 获取对应身份的总数
+function M.getIdentityNumber(req, res, next)
+	local identity = req.body.identity
+
+	if not identity then
+		res:status(http_bad_request):json(get_identity_number_code.params_error)
+		ngx_log(ngx_err, "user model get identity number params error")
+		return
+	end
+
 	local mdb, err = mysql:new(mysql_config)
 	if not mdb then
-		res:status(http_inner_error):json(get_admin_list_code.db_error)
-		ngx_log(ngx_err, "user model get admin list mysql:new() error:", err)
+		res:status(http_inner_error):json(get_identity_number_code.db_error)
+		ngx_log(ngx_err, "user model get identity number mysql:new() error:", err)
 		return
 	end
 
-	local ress, err = mdb:select("select * from `users` where `identity`=? and `status`=?", define_user_identity.root, define_user_status.normal)
+	local ress, err = mdb:select("select count(*) as `c` from `users` where `identity`=?", utils.switch_identity_str(identity))
 	if not ress then
-		res:status(http_inner_error):json(get_admin_list_code.db_error)
-		ngx_log(ngx_err, "user model get admin list select users error:", err)
+		res:status(http_inner_error):json(get_identity_number_code.db_error)
+		ngx_log(ngx_err, "user model get identity number select users error:", err)
 		return
 	end
 
-	get_admin_list_code.gen_success_data(get_admin_list_code.success.data, ress[1])
-	res:status(http_ok):json(get_admin_list_code.success)
-	ngx_log(ngx_info, "user model get admin list success")
+	get_identity_number_code.success.data.count = tonumber(ress[1][1]["c"])
+	res:status(http_ok):json(get_identity_number_code.success)
+	ngx_log(ngx_info, "user model get identity number success")
 end
 
 -- 编辑管理员
@@ -349,7 +360,7 @@ function M.editAdmin(req, res, next)
 		return
 	end
 
-	local ress, err = mdb:update("update `users` set `name`=?,`sex`=?,`email`=?,`department`=?,`update_time`=? where `id`=?", name, sex, email, utils.switch_department_str(department), os_time(), id)
+	local ress, err = mdb:update("update `users` set `name`=?,`sex`=?,`email`=?,`department`=?,`update_time`=? where `id`=?", name, sex, email, department, os_time(), id)
 	if not ress or ress[1].affected_rows ~= 1 then
 		res:status(http_inner_error):json(edit_admin_code.db_error)
 		ngx_log(ngx_err, "user model edit admin update admin error:", err)
@@ -407,10 +418,11 @@ function M.searchUser(req, res, next)
 		return
 	end
 
+	local ress, err
 	if lor_utils.trim_path_spaces(account) == "" then
-		local ress, err = mdb:select("select * from `users` where `identity`=?", utils.switch_identity_str(identity))
+		ress, err = mdb:select("select * from `users` where `identity`=?", utils.switch_identity_str(identity))
 	else
-		local ress, err = mdb:select("select * from `users` where `account`=?", account)
+		ress, err = mdb:select("select * from `users` where `account`=? and `identity`=?", account, utils.switch_identity_str(identity))
 	end
 	if not ress then
 		res:status(http_inner_error):json(search_user_code.db_error)
@@ -426,8 +438,9 @@ end
 -- 根据部门搜索用户
 function M.searchUserByDepartment(req, res, next)
 	local department = req.body.department
+	local identity = req.body.identity
 
-	if not department then
+	if not department or not identity then
 		res:status(http_bad_request):json(search_userByDepartment_code.params_error)
 		ngx_log(ngx_err, "user model search user by department params error")
 		return
@@ -440,7 +453,7 @@ function M.searchUserByDepartment(req, res, next)
 		return
 	end
 
-	local ress, err = mdb:select("select * from `users` where `department`=?", utils.switch_department_str(department))
+	local ress, err = mdb:select("select * from `users` where `department`=? and `identity`=?", department, utils.switch_identity_str(identity))
 	if not ress then
 		res:status(http_inner_error):json(search_userByDepartment_code.db_error)
 		ngx_log(ngx_err, "user model search user by department select users error:", err)
@@ -469,10 +482,10 @@ function M.banUser(req, res, next)
 		return
 	end
 
-	local ress, err = mdb:update("update `users` set `status`=?,`update_time`=? where `id`=?", define_user_status.banned, os_time(), id)
+	local ress, err = mdb:update("update `users` set `status`=?,`update_time`=? where `id`=?", define_user_status.frozen, os_time(), id)
 	if not ress or ress[1].affected_rows ~= 1 then
 		res:status(http_inner_error):json(ban_user_code.db_error)
-		ngx_log(ngx_err, "user model ban user update admin error:", err)
+		ngx_log(ngx_err, "user model ban user update error:", err)
 		return
 	end
 
@@ -546,8 +559,15 @@ function M.deleteUser(req, res, next)
 		return
 	end
 
-	local ress, err = mdb:delete("delete from `users` where `id`=?", id)
-	if not ress or ress[1].affected_rows ~= 1 then
+	local sqls = string_format("%s;%s;%s;%s;%s;%s", 
+		"delete from `users` where `id`="..id, 
+		"delete from `user_message_id` where `user_id`="..id,
+		"update `product` set `user_id`=0 where `user_id`="..id
+		"update `setting` set `user_id`=0 where `user_id`="..id
+		"update `message` set `user_id`=0 where `user_id`="..id
+		"update `log` set `user_id`=0 where `user_id`="..id)
+	local ress, err = mdb:update(sqls)
+	if not ress then
 		res:status(http_inner_error):json(delete_user_code.db_error)
 		ngx_log(ngx_err, "user model delete user delete admin error:", err)
 		return
@@ -572,7 +592,7 @@ function M.batchGetUser(req, res, next)
 	local mdb, err = mysql:new(mysql_config)
 	if not mdb then
 		res:status(http_inner_error):json(batch_get_user_code.db_error)
-		ngx_log(ngx_err, "user model batch get user mysql:new() error:", err, "limit:", limit, "offset:", offset)
+		ngx_log(ngx_err, "user model batch get user mysql:new() error:", err, "limit:", limit, ", offset:", offset)
 		return
 	end
 
@@ -580,13 +600,13 @@ function M.batchGetUser(req, res, next)
 		utils.switch_identity_str(identity), offset, limit)
 	if not ress then
 		res:status(http_inner_error):json(batch_get_user_code.db_error)
-		ngx_log(ngx_err, "user model batch get user select users error:", err, "limit:", limit, "offset:", offset)
+		ngx_log(ngx_err, "user model batch get user select users error:", err, "limit:", limit, ", offset:", offset)
 		return
 	end
 
 	batch_get_user_code.gen_success_data(batch_get_user_code.success.data, ress[1])
 	res:status(http_ok):json(batch_get_user_code.success)
-	ngx_log(ngx_info, "user model batch get user success, limit:", limit, "offset:", offset)
+	ngx_log(ngx_info, "user model batch get user success, limit:", limit, ", offset:", offset)
 end
 
 return M

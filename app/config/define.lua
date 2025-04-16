@@ -76,4 +76,18 @@ return {
 		-- 必要
 		emergency = 2,
 	},
+	-- 日志等级
+	log_level = {
+		-- 低级
+		low = 0,
+		-- 中级
+		middle = 1,
+		-- 高级
+		high = 2,
+	},
+	-- 日志类型
+	log_type = {
+		-- 登录
+		login = 0,
+	},
 }

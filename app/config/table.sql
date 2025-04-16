@@ -39,7 +39,7 @@ drop table if exists `product`;
 create table `product` (
   `id` bigint(20) unsigned not null auto_increment comment '自增id',
   `number` varchar(255) not null default '' comment '编号',
-  `category` tinyint unsigned not null default 0 comment '类别',
+  `category` varchar(255) not null default '' comment '类别',
   `name` varchar(255) not null default '' comment '名称',
   `unit` varchar(255) not null default '' comment '单位',
   `quantity` int(10) unsigned not null default 0 comment '数量',
@@ -67,12 +67,14 @@ create table `message` (
   `delete_time` bigint(20) not null default 0 comment '删除时间',
   `department` varchar(255) not null default '' comment '发布部门',
   `name` varchar(255) not null default '' comment '发布人',
+  `user_id` bigint(20) not null default 0 comment '发布人id',
   `level` tinyint unsigned not null default 0 comment '消息等级',
   `status` tinyint unsigned not null default 0 comment '消息状态',
   `click_num` int(10) unsigned not null default 0 comment '点击次数',
   primary key (`id`),
   key `category` (`category`),
-  key `msg_id` (`msg_id`)
+  key `msg_id` (`msg_id`),
+  key `user_id` (`user_id`)
 ) engine=innodb default charset=utf8mb4;
 
 -- 生成消息Id
@@ -91,4 +93,20 @@ create table `user_message_id` (
   `department` varchar(255) not null default '' comment '部门',
   `read_msg_id` bigint(20) not null default 0 comment '已读消息id',
   primary key (`user_id`, `department`)
+) engine=innodb default charset=utf8mb4;
+
+-- 日志
+drop table if exists `log`;
+create table `log` (
+  `id` bigint(20) unsigned not null auto_increment comment '自增id',
+  `user_id` bigint(20) not null default 0 comment '用户id',
+  `name` varchar(255) not null default '' comment '用户名',
+  `category` tinyint unsigned not null default 0 comment '日志类别',
+  `content` text not null default '' comment '日志内容',
+  `time` bigint(20) not null default 0 comment '日志时间',
+  `level` tinyint unsigned not null default 0 comment '日志等级', 
+  primary key (`id`),
+  key `user_id` (`user_id`),
+  key `name` (`name`),
+  key `category` (`category`)
 ) engine=innodb default charset=utf8mb4;

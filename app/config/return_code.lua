@@ -571,29 +571,22 @@ local return_codes = {
 			message = "用户已经存在",
 		},	
 	},
-	get_admin_list = {
+	-- 获取对应身份总人数
+	get_identity_number = {
 		-- 成功
 		success = {
 			status = 0,
 			message = "成功",
 			data = {},
 		},
-		-- 生成成功信息
-		gen_success_data = function(dest, src)
-			dest.adminList = {}
-			for i=1, #src do
-				dest.adminList[i] = {}
-				dest.adminList[i].id = src[i]["id"]
-				dest.adminList[i].account = src[i]["account"] 
-				dest.adminList[i].name = src[i]["name"]
-				dest.adminList[i].email = src[i]["email"]
-				dest.adminList[i].identity = utils.switch_identity(src[i]["identity"])
-				dest.adminList[i].department = src[i]["department"]
-			end
-		end,
+		-- 参数错误
+		params_error = {
+			status = 1,
+			message = "参数错误",
+		},
 		-- 数据库错误
 		db_error = {
-			status = 1,
+			status = 2,
 			message = "数据库错误",
 		},
 	},
@@ -651,6 +644,10 @@ local return_codes = {
 				dest.userList[i].email = src[i]["email"]
 				dest.userList[i].identity = utils.switch_identity(src[i]["identity"])
 				dest.userList[i].department = src[i]["department"]
+				dest.userList[i].sex = utils.switch_sex(src[i]["sex"])
+				dest.userList[i].create_time = src[i]["create_time"]
+				dest.userList[i].update_time = src[i]["update_time"]
+				dest.userList[i].status = src[i]["status"]
 			end
 		end,
 		params_error = {
@@ -681,6 +678,10 @@ local return_codes = {
 				dest.userList[i].email = src[i]["email"]
 				dest.userList[i].identity = utils.switch_identity(src[i]["identity"])
 				dest.userList[i].department = src[i]["department"]
+				dest.userList[i].sex = utils.switch_sex(src[i]["sex"])
+				dest.userList[i].create_time = src[i]["create_time"]
+				dest.userList[i].update_time = src[i]["update_time"]
+				dest.userList[i].status = src[i]["status"]
 			end
 		end,
 		params_error = {
@@ -730,6 +731,10 @@ local return_codes = {
 				dest.userList[i].email = src[i]["email"]
 				dest.userList[i].identity = utils.switch_identity(src[i]["identity"])
 				dest.userList[i].department = src[i]["department"]
+				dest.userList[i].sex = utils.switch_sex(src[i]["sex"])
+				dest.userList[i].create_time = src[i]["create_time"]
+				dest.userList[i].update_time = src[i]["update_time"]
+				dest.userList[i].status = src[i]["status"]
 			end
 		end,
 		-- 数据库错误
@@ -775,6 +780,10 @@ local return_codes = {
 				dest.userList[i].email = src[i]["email"]
 				dest.userList[i].identity = utils.switch_identity(src[i]["identity"])
 				dest.userList[i].department = src[i]["department"]
+				dest.userList[i].sex = utils.switch_sex(src[i]["sex"])
+				dest.userList[i].create_time = src[i]["create_time"]
+				dest.userList[i].update_time = src[i]["update_time"]
+				dest.userList[i].status = src[i]["status"]
 			end
 		end,
 		-- 参数错误
@@ -798,12 +807,13 @@ local return_codes = {
 		},
 		-- 生成成功信息
 		gen_success_data = function(dest, src)
-			dest.rstArr = {}
-			if #src == 0 then
+			dest.rstArr = {category={}, price={}}
+			if not src or #src == 0 then
 				return
 			end
 			for _, v in ipairs(src) do
-				table_insert(dest.rstArr, {category = v.category, total_price = v.total_price})
+				table_insert(dest.rstArr.category, v.category)
+				table_insert(dest.rstArr.price, v.total_price)
 			end
 		end,
 		-- 参数错误
@@ -837,7 +847,7 @@ local return_codes = {
 				return
 			end
 			for _, v in ipairs(src) do
-				table_insert(dest.rstArr, {identity = v.identity, number = v.number})
+				table_insert(dest.rstArr, {name = utils.switch_identity(v.identity), value = v.number})
 			end
 		end,
 		-- 数据库错误
@@ -856,8 +866,14 @@ local return_codes = {
 		},
 		-- 生成成功信息
 		gen_success_data = function(dest, src)
-			dest.login_date = src.login_date
-			dest.user_count = src.user_count
+			dest.rstArr = {week={}, number={}}
+			if not src or #src == 0 then
+				return
+			end
+			for _, v in ipairs(src) do
+				table_insert(dest.rstArr.week, v.login_date)
+				table_insert(dest.rstArr.number, v.user_count)
+			end
 		end,
 		-- 参数错误
 		params_error = {
@@ -948,6 +964,47 @@ local return_codes = {
 		},
 		-- 生成成功信息
 		gen_success_data = parese_message,
+		-- 参数错误
+		params_error = {
+			status = 1,
+			message = "参数错误",
+		},
+		-- 数据库错误
+		db_error = {
+			status = 2,
+			message = "数据库错误",
+		},
+	},
+	-- 获取不同消息等级与数量
+	get_levelAndNumber = {
+		-- 成功
+		success = {
+			status = 0,
+			message = "成功",
+			data = {},
+		},
+		-- 生成成功信息
+		gen_success_data = function(dest, src)
+			dest.rstArr = {}
+			if not src or #src == 0 then
+				return
+			end
+			for _, v in ipairs(src) do
+				table_insert(dest.rstArr, {name = utils.switch_message_level(v.level), value = v.number})
+			end
+		end,
+		db_error = {
+			status = 1,
+			message = "数据库错误",
+		},
+	},
+	-- 封禁用户
+	ban_user = {
+		-- 成功
+		success = {
+			status = 0,
+			message = "成功",
+		},
 		-- 参数错误
 		params_error = {
 			status = 1,
