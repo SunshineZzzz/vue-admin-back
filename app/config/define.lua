@@ -89,5 +89,7 @@ return {
 	log_type = {
 		-- 登录
 		login = 0,
+		-- 删除
+		delete = 1,
 	},
 }

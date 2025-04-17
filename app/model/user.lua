@@ -559,6 +559,14 @@ function M.deleteUser(req, res, next)
 		return
 	end
 
+	local ress, err = mdb:select("select * from `users` where `id`=?", id)
+	if not ress or ress[1] == nil or ress[1][1] == nil then
+		res:status(http_inner_error):json(delete_user_code.db_error)
+		ngx_log(ngx_err, "user model delete user select users error:", err)
+		return
+	end
+	local userInfo = ress[1][1]
+
 	local sqls = string_format("%s;%s;%s;%s;%s;%s", 
 		"delete from `users` where `id`="..id, 
 		"delete from `user_message_id` where `user_id`="..id,
@@ -575,6 +583,13 @@ function M.deleteUser(req, res, next)
 
 	res:status(http_ok):json(delete_user_code.success)
 	ngx_log(ngx_info, "user model delete user success")
+	res:eof()
+
+	-- 记录删除日志
+	_, err = mdb:insert("insert into `log` set `user_id`=?,`name`=?,`category`=?,`content`=?,`time`=?,`level`=?", userInfo["id"], userInfo["name"], define_log_type.delete, "删除用户", os_time(), define_log_level.high)
+	if err then
+		ngx_log(ngx_err, "user model delete user insert log error:", err)
+	end
 end
 
 -- 分批获取用户
