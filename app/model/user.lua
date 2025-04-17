@@ -530,7 +530,7 @@ function M.getBanList(req, res, next)
 		return
 	end
 
-	local ress, err = mdb:select("select * from `users` where `status`=?", define_user_status.banned)
+	local ress, err = mdb:select("select * from `users` where `status`=?", define_user_status.frozen)
 	if not ress then
 		res:status(http_inner_error):json(get_ban_list_code.db_error)
 		ngx_log(ngx_err, "user model get ban list select users error:", err)
@@ -562,9 +562,9 @@ function M.deleteUser(req, res, next)
 	local sqls = string_format("%s;%s;%s;%s;%s;%s", 
 		"delete from `users` where `id`="..id, 
 		"delete from `user_message_id` where `user_id`="..id,
-		"update `product` set `user_id`=0 where `user_id`="..id
-		"update `setting` set `user_id`=0 where `user_id`="..id
-		"update `message` set `user_id`=0 where `user_id`="..id
+		"update `product` set `user_id`=0 where `user_id`="..id,
+		"update `setting` set `user_id`=0 where `user_id`="..id,
+		"update `message` set `user_id`=0 where `user_id`="..id,
 		"update `log` set `user_id`=0 where `user_id`="..id)
 	local ress, err = mdb:update(sqls)
 	if not ress then
