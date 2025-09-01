@@ -10,7 +10,7 @@
 # sh start.sh -- use conf/nginx-dev.conf to start OpenResty
 #####################################################################
 
-if [ -n "$1" ];then
+if [ -n "$1" ]; then
 	PROFILE="$1"
 else
 	PROFILE=dev

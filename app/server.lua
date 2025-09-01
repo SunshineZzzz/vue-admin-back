@@ -1,6 +1,5 @@
 -- Comment: 服务实现
 
-local string_find = string.find
 local lor = require("lor.index")
 local router = require("app.router")
 local config = require("app.config.config")

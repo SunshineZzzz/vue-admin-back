@@ -7,7 +7,7 @@ local utils = require("app.utils.utils")
 local http_not_found = ngx.HTTP_NOT_FOUND
 local http_inner_error = ngx.HTTP_INTERNAL_SERVER_ERROR
 local http_unauthorized = ngx.HTTP_UNAUTHORIZED
-local lor_utils = require("lor.lib.utils.utils")
+-- local lor_utils = require("lor.lib.utils.utils")
 
 local parese_message = function(dest, src)
 	dest.messageArr = {}
@@ -480,10 +480,11 @@ local return_codes = {
 			data = {},
 		},
 		gen_success_data = function(dest, src)
-			dest.department = {}
-			for i=1, #src do
-				dest.department = src[i]["value"]
+			dest.department = "[]"
+			if not src then
+				return
 			end
+			dest.department = src["value"]
 		end,
 		-- 数据库错误
 		db_error = {
@@ -518,10 +519,12 @@ local return_codes = {
 			data = {},
 		},
 		gen_success_data = function(dest, src)
-			dest.product = {}
-			for i=1, #src do
-				dest.product = src[i]["value"]
+			dest.product = "[]"
+			if not src then
+				return
 			end
+
+			dest.product = src["value"]
 		end,
 		-- 数据库错误
 		db_error = {

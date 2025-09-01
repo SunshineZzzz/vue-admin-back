@@ -10,7 +10,7 @@
 # sh reload.sh -- use conf/nginx-dev.conf to reload OpenResty
 #####################################################################
 
-if [ -n "$1" ];then
+if [ -n "$1" ]; then
 	PROFILE="$1"
 else
 	PROFILE=dev

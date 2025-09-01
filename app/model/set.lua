@@ -96,11 +96,11 @@ function M.uploadSwiper(req, res, next)
 	ngx_log(ngx_info, "set model upload swiper success")
 end
 
+-- 上传公司介绍图片
 function M.uploadCompanyIntroducePicture(req, res, next)
-	local id = req.jwt.id
 	local key = req.query.key
 
-	if not id or not key or #key == 0 then
+	if not key or #key == 0 then
 		res:status(http_bad_request):json(upload_companyIntroducePicture_code.params_error)
 		ngx_log(ngx_err, "set model upload company introduce picture params error")
 		return
@@ -119,7 +119,7 @@ function M.uploadCompanyIntroducePicture(req, res, next)
 	local file_path, origin_filename, _, _, err = lor_utils.multipart_formdata(upload_config, path, false, {["image/jpeg"] = 1})
 	if err then
 		res:status(http_inner_error):json(upload_companyIntroducePicture_code.upload_fail)
-		ngx_log(ngx_err, "set model upload company introduce picture multipart formdata error:", err, ", dir:", path)
+		ngx_log(ngx_err, "set model upload company introduce picture multipart formdata error:", err, ", dir:", file_path)
 		return
 	end
 
@@ -334,14 +334,14 @@ function M.getDepartment(req, res, next)
 		return
 	end
 
-	local ress, err = mdb:select("select * from `setting` where `category`=?", define_setting_type.department)
+	local ress, err = mdb:select("select * from `setting` where `category`=? and `key`=?", define_setting_type.department, define_setting_name.department)
 	if not ress then
 		res:status(http_inner_error):json(get_department_code.db_error)
 		ngx_log(ngx_err, "set model get department select setting error:", err)
 		return
 	end
 
-	get_department_code.gen_success_data(get_department_code.success.data, ress[1])
+	get_department_code.gen_success_data(get_department_code.success.data, ress[1][1])
 	res:status(http_ok):json(get_department_code.success)
 	ngx_log(ngx_info, "set model get department success")
 end
@@ -385,14 +385,14 @@ function M.getProduct(req, res, next)
 		return
 	end
 
-	local ress, err = mdb:select("select * from `setting` where `category`=?", define_setting_type.productType)
+	local ress, err = mdb:select("select * from `setting` where `category`=? and `key`=?", define_setting_type.productType, define_setting_name.productType)
 	if not ress then
 		res:status(http_inner_error):json(get_product_code.db_error)
 		ngx_log(ngx_err, "set model get product select setting error:", err)
 		return
 	end
 
-	get_product_code.gen_success_data(get_product_code.success.data, ress[1])
+	get_product_code.gen_success_data(get_product_code.success.data, ress[1][1])
 	res:status(http_ok):json(get_product_code.success)
 	ngx_log(ngx_info, "set model get product success")
 end
