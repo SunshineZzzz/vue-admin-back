@@ -3,7 +3,7 @@
 local string_format = string.format
 local tonumber = tonumber
 local os_time = os.time
-local tostring = tostring
+-- local tostring = tostring
 local http_ok = ngx.HTTP_OK
 local http_bad_request = ngx.HTTP_BAD_REQUEST
 local http_inner_error = ngx.HTTP_INTERNAL_SERVER_ERROR
@@ -267,11 +267,12 @@ function M.createAdmin(req, res, next)
 	local sex = req.body.sex
 	local department = req.body.department
 	local email = req.body.email
+	local identity = req.body.identity
 
 	if not account or not password or 
 	not name or not sex or 
 	not department or not email or 
-	not identity then
+	not identity or not utils.switch_identity_str(identity) then
 		res:status(http_bad_request):json(create_admin_code.params_error)
 		ngx_log(ngx_err, "user model create admin params error")
 		return
@@ -285,13 +286,13 @@ function M.createAdmin(req, res, next)
 	end
 
 	local ress, err = mdb:select("select count(*) as c from `users` where `account`=?", account)
-	if not ress or not err then
+	if not ress then
 		res:status(http_inner_error):json(create_admin_code.db_error)
 		ngx_log(ngx_err, "user model create admin insert admin error:", err)
 		return
 	end
 
-	if ress[1][1]["c"] > 0 then
+	if tonumber(ress[1][1]["c"] )> 0 then
 		res:status(http_ok):json(create_admin_code.user_exist)
 		ngx_log(ngx_err, "user model create admin user exist")
 		return
@@ -299,7 +300,7 @@ function M.createAdmin(req, res, next)
 
 	local hashed_password = pw.hash_password(password)
 	ress, err = mdb:insert("insert into `users` set `account`=?,`password`=?,`identity`=?,`department`=?,`name`=?,`sex`=?,`email`=?,`create_time`=?,`update_time`=?,`status`=?", 
-		account, hashed_password, define_user_identity.root, department, name, sex, email, os_time(), os_time(), define_user_status.normal)
+		account, hashed_password, utils.switch_identity_str(identity), department, name, sex, email, os_time(), os_time(), define_user_status.normal)
 	if not ress or ress[1].affected_rows ~= 1 then
 		res:status(http_inner_error):json(create_admin_code.db_error)
 		ngx_log(ngx_err, "user model create admin insert admin error:", err)
@@ -314,7 +315,7 @@ end
 function M.getIdentityNumber(req, res, next)
 	local identity = req.body.identity
 
-	if not identity then
+	if not identity or not utils.switch_identity_str(identity) then
 		res:status(http_bad_request):json(get_identity_number_code.params_error)
 		ngx_log(ngx_err, "user model get identity number params error")
 		return
@@ -376,7 +377,7 @@ function M.changeIdentity(req, res, next)
 	local id = req.body.id
 	local identity = req.body.identity
 
-	if not id or not identity then
+	if not id or not identity  or not utils.switch_identity_str(identity) then
 		res:status(http_bad_request):json(change_identity_code.params_error)
 		ngx_log(ngx_err, "user model change identity params error")
 		return
@@ -405,7 +406,7 @@ function M.searchUser(req, res, next)
 	local account = req.body.account
 	local identity = req.body.identity
 
-	if not account or not identity then
+	if not account or not identity or not utils.switch_identity_str(identity) then
 		res:status(http_bad_request):json(search_user_code.params_error)
 		ngx_log(ngx_err, "user model search user params error")
 		return
@@ -440,7 +441,7 @@ function M.searchUserByDepartment(req, res, next)
 	local department = req.body.department
 	local identity = req.body.identity
 
-	if not department or not identity then
+	if not department or not identity or not utils.switch_identity_str(identity) then
 		res:status(http_bad_request):json(search_userByDepartment_code.params_error)
 		ngx_log(ngx_err, "user model search user by department params error")
 		return
@@ -598,7 +599,7 @@ function M.batchGetUser(req, res, next)
 	local offset = tonumber(req.body.offset)
 	local limit = tonumber(req.body.limit)
 
-	if not identity or not offset or not limit then
+	if not identity or not utils.switch_identity_str(identity) or not offset or not limit then
 		res:status(http_bad_request):json(batch_get_user_code.params_error)
 		ngx_log(ngx_err, "user model batch get user params error")
 		return	

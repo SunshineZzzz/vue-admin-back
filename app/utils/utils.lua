@@ -66,22 +66,13 @@ function Utils.switch_identity_str(identify)
 		return define_user_identity.productMgr
 	elseif identify == "消息管理员" then
 		return define_user_identity.messageMgr
-	else
-		-- 超级管理员
+	elseif identify == "超级管理员" then
 		return define_user_identity.root
+	else
+		return nil
 	end
 end
 
--- 性别转化为对应字符串
-function Utils.switch_sex(sex)
-	if sex == 0 then
-		return ""
-	end
-	if sex == 1 then
-		return "男"
-	end
-	return "女"
-end
 
 -- 消息等级转化为对应字符串
 function Utils.switch_message_level(level)
