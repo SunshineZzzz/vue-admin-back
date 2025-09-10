@@ -43,15 +43,44 @@ create table `product` (
   `name` varchar(255) not null default '' comment '名称',
   `unit` varchar(255) not null default '' comment '单位',
   `quantity` int(10) unsigned not null default 0 comment '数量',
+  `out_quantity` int(10) unsigned not null default 0 comment '出库数量',
   `price` int(10) unsigned not null default 0 comment '价格',
   `user_id` bigint(20) not null default 0 comment '负责人id',
+  `update_user_id` bigint(20) not null default 0 comment '更新人id',
+  `out_user_id` bigint(20) not null default 0 comment '出库人id',
   `create_time` bigint(20) not null default 0 comment '创建时间',
   `update_time` bigint(20) not null default 0 comment '更新时间',
+  `apply_out_time` bigint(20) not null default 0 comment '申请出库时间',
+  `out_time` bigint(20) not null default 0 comment '出库时间',
+  `status` tinyint unsigned not null default 0 comment '状态,0正常，1申请出库中，2同意出库，3拒绝出库',
   `remark` text not null comment '备注',
   primary key (`id`),
   unique key (`number`),
   key `category` (`category`),
-  key `user_id` (`user_id`)
+  key `user_id` (`user_id`),
+  key `update_user_id` (`update_user_id`),
+  key `out_user_id` (`out_user_id`)
+) engine=innodb default charset=utf8mb4;
+
+-- 出库产品
+drop table if exists `out_product`;
+create table `out_product` (
+  `id` bigint(20) unsigned not null auto_increment comment '自增id',
+  `number` varchar(255) not null default '' comment '编号',
+  `category` varchar(255) not null default '' comment '类别',
+  `name` varchar(255) not null default '' comment '名称',
+  `unit` varchar(255) not null default '' comment '单位',
+  `quantity` int(10) unsigned not null default 0 comment '数量',
+  `price` int(10) unsigned not null default 0 comment '价格',
+  `user_id` bigint(20) not null default 0 comment '审核人id',
+  `out_user_id` bigint(20) not null default 0 comment '出库人id',
+  `out_time` bigint(20) not null default 0 comment '出库时间',
+  `apply_out_time` bigint(20) not null default 0 comment '申请出库时间',
+  `remark` text not null comment '备注',
+  primary key (`id`),
+  key `category` (`category`),
+  key `user_id` (`user_id`),
+  key `out_user_id` (`out_user_id`)
 ) engine=innodb default charset=utf8mb4;
 
 -- 消息

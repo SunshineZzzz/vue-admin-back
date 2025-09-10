@@ -76,6 +76,17 @@ return {
 		-- 必要
 		emergency = 2,
 	},
+	-- 商品状态
+	product_status = {
+		-- 正常
+		normal = 0,
+		-- 申请出库
+		applying = 1,
+		-- 同意出库
+		agreeApply = 2,
+		-- 拒绝出库
+		rejectApply = 3,
+	},
 	-- 日志等级
 	log_level = {
 		-- 低级
@@ -91,5 +102,7 @@ return {
 		login = 0,
 		-- 删除
 		delete = 1,
+		-- 产品审核
+		product_audit = 2,
 	},
 }

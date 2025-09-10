@@ -98,6 +98,7 @@ function M.login(req, res, next)
 	res:status(http_ok):json(login_code.success)
 	local content = lor_utils.json_encode(login_code.success.data)
 	ngx_log(ngx_info, "login model register success, data:", content)
+	
 	res:eof()
 
 	-- 记录登录日志

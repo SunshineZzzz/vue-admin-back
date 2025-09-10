@@ -7,7 +7,7 @@ local utils = require("app.utils.utils")
 local http_not_found = ngx.HTTP_NOT_FOUND
 local http_inner_error = ngx.HTTP_INTERNAL_SERVER_ERROR
 local http_unauthorized = ngx.HTTP_UNAUTHORIZED
--- local lor_utils = require("lor.lib.utils.utils")
+local define_product_status = require("app.config.define").product_status
 
 local parese_message = function(dest, src)
 	dest.messageArr = {}
@@ -1008,6 +1008,428 @@ local return_codes = {
 			status = 0,
 			message = "成功",
 		},
+		-- 参数错误
+		params_error = {
+			status = 1,
+			message = "参数错误",
+		},
+		-- 数据库错误
+		db_error = {
+			status = 2,
+			message = "数据库错误",
+		},
+	},
+	-- 产品入库
+	create_product = {
+		-- 成功
+		success = {
+			status = 0,
+			message = "成功",
+		},
+		-- 参数错误
+		params_error = {
+			status = 1,
+			message = "参数错误",
+		},
+		-- 数据库错误
+		db_error = {
+			status = 2,
+			message = "数据库错误",
+		},
+		-- 入库失败
+		create_error = {
+			status = 3,
+			message = "入库失败",
+		},
+	},
+	-- 删除产品
+	delete_product = {
+		-- 成功
+		success = {
+			status = 0,
+			message = "成功",
+		},
+		-- 参数错误
+		params_error = {
+			status = 1,
+			message = "参数错误",
+		},
+		-- 数据库错误
+		db_error = {
+			status = 2,
+			message = "数据库错误",
+		},
+		-- 删除失败
+		delete_error = {
+			status = 3,
+			message = "删除失败",
+		},
+	},
+	-- 编辑产品信息
+	edit_product = {
+		-- 成功
+		success = {
+			status = 0,
+			message = "成功",
+		},
+		-- 参数错误
+		params_error = {
+			status = 1,
+			message = "参数错误",
+		},
+		-- 数据库错误
+		db_error = {
+			status = 2,
+			message = "数据库错误",
+		},
+		-- 编辑失败
+		edit_error = {
+			status = 3,
+			message = "编辑失败",
+		},
+	},
+	-- 申请产品出库
+	apply_out_product = {
+		-- 成功
+		success = {
+			status = 0,
+			message = "成功",
+		},
+		-- 参数错误
+		params_error = {
+			status = 1,
+			message = "参数错误",
+		},
+		-- 数据库错误
+		db_error = {
+			status = 2,
+			message = "数据库错误",
+		},
+		-- 申请失败
+		apply_error = {
+			status = 3,
+			message = "申请失败",
+		},
+	},
+	-- 对产品进行撤回申请
+	withdraw_apply_product = {
+		-- 成功
+		success = {
+			status = 0,
+			message = "成功",
+		},
+		-- 参数错误
+		params_error = {
+			status = 1,
+			message = "参数错误",
+		},
+		-- 数据库错误
+		db_error = {
+			status = 2,
+			message = "数据库错误",
+		},
+		-- 撤回失败
+		withdraw_error = {
+			status = 3,
+			message = "撤回失败",
+		},
+	},
+	-- 审核产品
+	audit_product = {
+		-- 成功
+		success = {
+			status = 0,
+			message = "成功",
+		},
+		-- 参数错误
+		params_error = {
+			status = 1,
+			message = "参数错误",
+		},
+		-- 数据库错误
+		db_error = {
+			status = 2,
+			message = "数据库错误",
+		},
+		-- 审核失败
+		audit_error = {
+			status = 3,
+			message = "审核失败",
+		},
+	},
+	-- 通过入库编号对产品进行搜索
+	get_productListForId = {
+		-- 成功
+		success = {
+			status = 0,
+			message = "成功",
+			data = {},
+		},
+		-- 生成成功信息
+		gen_success_data_out = function(dest, src)
+			dest.productList = {}
+
+			if not src then
+				return
+			end
+
+			for _, v in pairs(src) do
+				table_insert(dest.productList, {
+					id = v.number,
+					category = v.category,
+					name = v.name,
+					unit = v.unit,
+					quantity = tonumber(v.quantity),
+					out_quantity = tonumber(v.out_quantity),
+					price = tonumber(v.price),
+					remark = v.remark,
+					create_time = tonumber(v.create_time),
+					update_time = 0,
+					apply_out_time = tonumber(v.apply_out_time),
+					out_time = tonumber(v.out_time),
+					status = utils.switch_product_status(define_product_status.normal),
+					user_name = v.user_name,
+					update_user_name = '',
+					out_user_name = v.out_user_name
+				})
+			end
+		end,
+		gen_success_data = function(dest, src)
+			dest.productList = {}
+
+			if not src then
+				return
+			end
+
+			table_insert(dest.productList, {
+				id = src.number,
+				category = src.category,
+				name = src.name,
+				unit = src.unit,
+				quantity = tonumber(src.quantity),
+				out_quantity = tonumber(src.out_quantity),
+				price = tonumber(src.price),
+				remark = src.remark,
+				create_time = tonumber(src.create_time),
+				update_time = tonumber(src.update_time),
+				apply_out_time = tonumber(src.apply_out_time),
+				out_time = tonumber(src.out_time),
+				status = utils.switch_product_status(src.status),
+				user_name = src.user_name,
+				update_user_name = src.update_user_name,
+				out_user_name = src.out_user_name
+			})
+		end,
+		-- 参数错误
+		params_error = {
+			status = 1,
+			message = "参数错误",
+		},
+		-- 数据库错误
+		db_error = {
+			status = 2,
+			message = "数据库错误",
+		},
+	},
+	-- 获取产品总数
+	get_productLength =  {
+		-- 成功
+		success = {
+			status = 0,
+			message = "成功",
+			data = {},
+		},
+		-- 生成成功信息
+		gen_success_data = function(dest, src)
+			dest.count = 0
+			if not src then
+				return
+			end
+			dest.count = tonumber(src["c"])
+		end,
+		-- 数据库错误
+		db_error = {
+			status = 1,
+			message = "数据库错误",
+		},
+	},
+	-- 获取申请出库产品总数
+	get_applyOutProductLength = {
+		-- 成功
+		success = {
+			status = 0,
+			message = "成功",
+			data = {},
+		},
+		-- 生成成功信息
+		gen_success_data = function(dest, src)
+			dest.count = 0
+			if not src then
+				return
+			end
+			dest.count = tonumber(src["c"])
+		end,
+		-- 数据库错误
+		db_error = {
+			status = 1,
+			message = "数据库错误",
+		},
+	},
+	-- 获取出库产品总数
+	get_outProductLength = {
+		-- 成功
+		success = {
+			status = 0,
+			message = "成功",
+			data = {},
+		},
+		-- 生成成功信息
+		gen_success_data = function(dest, src)
+			dest.count = 0
+			if not src then
+				return
+			end
+			dest.count = tonumber(src["c"])
+		end,
+		-- 数据库错误
+		db_error = {
+			status = 1,
+			message = "数据库错误",
+		},
+	},
+	-- 批量获取产品
+	batch_getProductList = {
+		-- 成功
+		success = {
+			status = 0,
+			message = "成功",
+			data = {},
+		},
+		-- 生成成功信息
+		gen_success_data = function(dest, src)
+			dest.productList = {}
+
+			if not src or #src == 0 then
+				return
+			end
+
+			for _, v in ipairs(src) do
+				table_insert(dest.productList, {
+					id = v.number,
+					category = v.category,
+					name = v.name,
+					unit = v.unit,
+					quantity = tonumber(v.quantity),
+					out_quantity = tonumber(v.out_quantity),
+					price = tonumber(v.price),
+					remark = v.remark,
+					create_time = tonumber(v.create_time),
+					update_time = tonumber(v.update_time),
+					apply_out_time = tonumber(v.apply_out_time),
+					out_time = tonumber(v.out_time),
+					status = utils.switch_product_status(v.status),
+					user_name = v.user_name,
+					update_user_name = v.update_user_name,
+					out_user_name = v.out_user_name
+				})
+			end
+		end,
+		-- 参数错误
+		params_error = {
+			status = 1,
+			message = "参数错误",
+		},
+		-- 数据库错误
+		db_error = {
+			status = 2,
+			message = "数据库错误",
+		},
+	},
+	-- 批量获取申请出库产品
+	batch_get_applyProductList = {
+		-- 成功
+		success = {
+			status = 0,
+			message = "成功",
+			data = {},
+		},
+		-- 生成成功信息
+		gen_success_data = function(dest, src)
+			dest.productList = {}
+
+			if not src or #src == 0 then
+				return
+			end
+
+			for _, v in ipairs(src) do
+				table_insert(dest.productList, {
+					id = v.number,
+					category = v.category,
+					name = v.name,
+					unit = v.unit,
+					quantity = tonumber(v.quantity),
+					out_quantity = tonumber(v.out_quantity),
+					price = tonumber(v.price),
+					remark = v.remark,
+					create_time = tonumber(v.create_time),
+					update_time = tonumber(v.update_time),
+					apply_out_time = tonumber(v.apply_out_time),
+					out_time = tonumber(v.out_time),
+					status = utils.switch_product_status(v.status),
+					user_name = v.user_name,
+					update_user_name = v.update_user_name,
+					out_user_name = v.out_user_name
+				})
+			end
+		end,
+		-- 参数错误
+		params_error = {
+			status = 1,
+			message = "参数错误",
+		},
+		-- 数据库错误
+		db_error = {
+			status = 2,
+			message = "数据库错误",
+		},
+	},
+	-- 批量获取出库产品
+	batch_get_outProductList = {
+		-- 成功
+		success = {
+			status = 0,
+			message = "成功",
+			data = {},
+		},
+		-- 生成成功信息
+		gen_success_data = function(dest, src)
+			dest.productList = {}
+
+			if not src or #src == 0 then
+				return
+			end
+
+			for _, v in ipairs(src) do
+				table_insert(dest.productList, {
+					id = v.number,
+					category = v.category,
+					name = v.name,
+					unit = v.unit,
+					quantity = tonumber(v.quantity),
+					out_quantity = tonumber(v.out_quantity),
+					price = tonumber(v.price),
+					remark = v.remark,
+					create_time = tonumber(v.create_time),
+					update_time = 0,
+					apply_out_time = tonumber(v.apply_out_time),
+					out_time = tonumber(v.out_time),
+					status = utils.switch_product_status(define_product_status.normal),
+					user_name = v.user_name,
+					update_user_name = '',
+					out_user_name = v.out_user_name
+				})
+			end
+		end,
 		-- 参数错误
 		params_error = {
 			status = 1,

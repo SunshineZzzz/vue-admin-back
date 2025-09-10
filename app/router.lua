@@ -6,6 +6,7 @@ local setRouter = require("app.routes.set")
 local messageRouter = require("app.routes.message")
 local dmRouter = require("app.routes.department_msg")
 local overviewRouter = require("app.routes.overview")
+local productRouter = require("app.routes.product")
 
 return function(app)
 	app:get("/", function(req, res, next)
@@ -22,5 +23,6 @@ return function(app)
 	app:use("/message", messageRouter())
 	app:use("/dm", dmRouter())
 	app:use("/overview", overviewRouter())
+	app:use('/pro', productRouter())
 end
 
