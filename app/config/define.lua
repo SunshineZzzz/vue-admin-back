@@ -66,6 +66,8 @@ return {
 	message_status = {
 		-- 正常
 		normal = 0,
+		-- 第一次删除
+		first_delete = 1,
 	},
 	-- 消息等级
 	message_level = {

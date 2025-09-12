@@ -88,20 +88,22 @@ drop table if exists `message`;
 create table `message` (
   `id` bigint(20) unsigned not null auto_increment comment '自增id',
   `msg_id` bigint(20) not null default 0 comment '消息id',
-  `category` varchar(255) not null default '' comment '消息类别',
+  `recept_department` varchar(255) not null default '' comment '接收部门',
   `title` varchar(255) not null default '' comment '标题',
   `content` text not null comment '内容',
   `create_time` bigint(20) not null default 0 comment '创建时间',
   `update_time` bigint(20) not null default 0 comment '更新时间',
   `delete_time` bigint(20) not null default 0 comment '删除时间',
-  `department` varchar(255) not null default '' comment '发布部门',
-  `name` varchar(255) not null default '' comment '发布人',
   `user_id` bigint(20) not null default 0 comment '发布人id',
+  `publish_department` varchar(255) not null default '' comment '发布部门',
+  `publish_name` varchar(255) not null default '' comment '发布人名称',
   `level` tinyint unsigned not null default 0 comment '消息等级',
   `status` tinyint unsigned not null default 0 comment '消息状态',
   `click_num` int(10) unsigned not null default 0 comment '点击次数',
   primary key (`id`),
-  key `category` (`category`),
+  key `recept_department` (`recept_department`),
+  key `publish_department` (`publish_department`),
+  key `publish_name` (`publish_name`),
   key `msg_id` (`msg_id`),
   key `user_id` (`user_id`)
 ) engine=innodb default charset=utf8mb4;
@@ -111,8 +113,7 @@ drop table if exists `gen_message_id`;
 create table `gen_message_id` (
   `department` varchar(255) not null default '' comment '部门',
   `msg_id` bigint(20) not null default 0 comment '消息id',
-  primary key (`department`),
-  unique key (`msg_id`)
+  primary key (`department`)
 ) engine=innodb default charset=utf8mb4;
 
 -- 用户消息Id

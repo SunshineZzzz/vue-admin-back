@@ -3,27 +3,24 @@
 local http_ok = ngx.HTTP_OK
 local http_bad_request = ngx.HTTP_BAD_REQUEST
 local http_inner_error = ngx.HTTP_INTERNAL_SERVER_ERROR
-local os = os
-local os_time = os.time
 local ngx_log = ngx.log
 local ngx_info = ngx.INFO
 local ngx_err = ngx.ERR
-local tonumber = tonumber
-local table_concat = table.concat
+local unpack = unpack
 local config = require("app.config.config")
 local mysql_config = config.mysql
 local mysql = require("lor.lib.utils.mysql")
 local lor_utils = require("lor.lib.utils.utils")
-local utils = require("app.utils.utils")
 local get_userDepartmentIds_code = require("app.config.return_code").get_userDepartmentIds
 local get_departmentMsgByIds_code = require("app.config.return_code").get_departmentMsgByIds
+local string_format = string.format
 
 local M = {}
 
 -- 获取用户部门消息ids
 function M.getUserDepartmentIds(req, res, next)
 	local id = req.jwt.id
-	local department = req.jwt.department
+	local department = req.body.department
 
 	if not id or not department then
 		res:status(http_bad_request):json(get_userDepartmentIds_code.params_error)
@@ -48,11 +45,11 @@ function M.getUserDepartmentIds(req, res, next)
 	if ress[1][1] == nil then
 		get_userDepartmentIds_code.gen_success_data(get_userDepartmentIds_code.success.data, nil)
 		res:status(http_ok):json(get_userDepartmentIds_code.success)
-		ngx_log(ngx_info, "dm model get user department ids success1")
+		ngx_log(ngx_info, "dm model get user department ids success1, department:", department)
 		return
 	end
 
-	local msg_id = ress[1][1]["msg_id"]
+	local msg_id = tonumber(ress[1][1]["msg_id"])
 	
 	local mysql_driver, err = mdb:begin()
 	if not mysql_driver then
@@ -68,11 +65,16 @@ function M.getUserDepartmentIds(req, res, next)
 	    return
 	end
 
-	if ress[1][1] ~= nil and ress[1][1].read_msg_id == msg_id then
+	local read_msg_id = 0
+	if ress[1][1] ~= nil and ress[1][1].read_msg_id ~= nil then
+		read_msg_id = tonumber(ress[1][1].read_msg_id) or 0
+	end
+
+	if read_msg_id >= msg_id then
 		local _, err = mdb:commit(mysql_driver)
 	    get_userDepartmentIds_code.gen_success_data(get_userDepartmentIds_code.success.data, nil)
 	    res:status(http_ok):json(get_userDepartmentIds_code.success)
-	    ngx_log(ngx_info, "dm model get user department ids success2, commit error:", err)
+	    ngx_log(ngx_info, "dm model get user department ids success2, department:", department, ", commit error:", err)
 	    return
 	end
 
@@ -90,7 +92,7 @@ function M.getUserDepartmentIds(req, res, next)
 	    return
 	end
 
-	ress, err = mdb:select("select `msg_id` from `message` where `id`>=? and `department`=?", msg_id, department)
+	ress, err = mdb:select("select `id` from `message` where `msg_id`>? and `recept_department`=?", read_msg_id, department)
 	if not ress then
 		res:status(http_inner_error):json(get_userDepartmentIds_code.db_error)
 		ngx_log(ngx_err, "dm model get user department ids select user_message_id error:", err)
@@ -99,16 +101,15 @@ function M.getUserDepartmentIds(req, res, next)
 
 	get_userDepartmentIds_code.gen_success_data(get_userDepartmentIds_code.success.data, ress[1])
 	res:status(http_ok):json(get_userDepartmentIds_code.success)
-	ngx_log(ngx_info, "dm model get user department ids success3")
+	ngx_log(ngx_info, "dm model get user department ids success3, department:", department)
 end
 
 -- 根据Ids获取部门消息
 function M.getDepartmentMsgByIds(req, res, next)
 	local id = req.jwt.id
-	local department = req.jwt.department
 	local ids = req.body.ids
 
-	if not id or not department or not ids then
+	if not id or not ids then
 		res:status(http_bad_request):json(get_departmentMsgByIds_code.params_error)
 		ngx_log(ngx_err, "dm model get department msg by ids params error")
 		return
@@ -128,13 +129,20 @@ function M.getDepartmentMsgByIds(req, res, next)
 		return
 	end
 
+	-- print(lor_utils.json_encode(msg_ids))
+	-- print(table.concat(msg_ids, ","))
 
-	local ress, err = mdb:select("select * from `message` where `msg_id` in (?) and `department`=?", table.concat(msg_ids, ","), department)
+	local placeholders, values = lor_utils.build_condition(msg_ids)
+	-- print(placeholders)
+	-- print(table.concat(values, ","))
+	local ress, err = mdb:select(string_format("select * from `message` where `id` in (%s)", placeholders), unpack(values))
 	if not ress then
 		res:status(http_inner_error):json(get_departmentMsgByIds_code.db_error)
 		ngx_log(ngx_err, "dm model get department msg by ids select message error:", err)
 		return
 	end
+
+	-- print(lor_utils.json_encode(ress))
 
 	get_departmentMsgByIds_code.gen_success_data(get_departmentMsgByIds_code.success.data, ress[1])
 	res:status(http_ok):json(get_departmentMsgByIds_code.success)

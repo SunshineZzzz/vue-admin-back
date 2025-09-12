@@ -77,12 +77,35 @@ end
 -- 消息等级转化为对应字符串
 function Utils.switch_message_level(level)
 	if level == define_message_level.normal then
-		return "一般"
+		return "一般", nil
 	end
+
 	if level == define_message_level.important then
-		return "重要"
+		return "重要", nil
 	end
-	return "必要"
+
+	if level == define_message_level.emergency then
+		return "必要", nil
+	end
+
+	return "", "未知等级"
+end
+
+-- 消息字符串转化为对应类型
+function Utils.switch_message_level_str(level)
+	if level == "一般" then
+		return define_message_level.normal
+	end
+
+	if level == "重要" then
+		return define_message_level.important
+	end
+
+	if level == "必要" then
+		return define_message_level.emergency
+	end
+
+	return nil
 end
 
 -- 日志等级转化为对应字符串

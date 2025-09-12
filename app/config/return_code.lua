@@ -9,31 +9,6 @@ local http_inner_error = ngx.HTTP_INTERNAL_SERVER_ERROR
 local http_unauthorized = ngx.HTTP_UNAUTHORIZED
 local define_product_status = require("app.config.define").product_status
 
-local parese_message = function(dest, src)
-	dest.messageArr = {}
-	if not src or#src == 0 then
-		return
-	end
-	for _, v in ipairs(src) do
-		table_insert(dest.messageArr, 
-		{
-			id = v.id,
-			msg_id = v.msg_id,
-			category = v.category,
-			title = v.title,
-			content = v.content,
-			create_time = tonumber(v.create_time),
-			update_time = tonumber(v.update_time),
-			delete_time = tonumber(v.delete_time),
-			department = v.department,
-			name = v.name,
-			level = utils.switch_message_level(v.level),
-			status = v.status,
-			click_num = v.click_num,
-		})
-	end
-end
-
 -- TODO，应该把公共错误提取出来
 local return_codes = {
 	-- http
@@ -907,16 +882,13 @@ local return_codes = {
 			message = "数据库错误",
 		},
 	},
-	-- 分批获取消息
-	batch_message_list = {
+	-- 编辑消息
+	edit_message = {
 		-- 成功
 		success = {
 			status = 0,
 			message = "成功",
-			data = {},
 		},
-		-- 生成成功信息
-		gen_success_data = parese_message,
 		-- 参数错误
 		params_error = {
 			status = 1,
@@ -927,6 +899,443 @@ local return_codes = {
 			status = 2,
 			message = "数据库错误",
 		},
+	},
+	-- 根据发布部门进行搜索消息
+	search_messageByDepartment = {
+		-- 成功
+		success = {
+			status = 0,
+			message = "成功",
+			data = {},
+		},
+		-- 生成成功信息
+		gen_success_data = function(dest, src)
+			dest.messageList = {}
+
+			if not src or #src == 0 then
+				return
+			end
+
+			for _, v in ipairs(src) do
+				table_insert(dest.messageList, {
+					msg_id = v.msg_id,
+					recept_department = v.recept_department,
+					title = v.title,
+					content = v.content,
+					create_time = v.create_time,
+					update_time = v.update_time,
+					delete_time = v.delete_time,
+					user_id = v.user_id,
+					publish_department = v.publish_department,
+					publish_name = v.publish_name,
+					level = utils.switch_message_level(v.level),
+					status = v.status,
+					click_num = v.click_num,
+				})
+			end
+		end,
+		-- 参数错误
+		params_error = {
+			status = 1,
+			message = "参数错误",
+		},
+		-- 数据库错误
+		db_error = {
+			status = 2,
+			message = "数据库错误",
+		},
+	},
+	search_messageByReceptDepartment = {
+		-- 成功
+		success = {
+			status = 0,
+			message = "成功",
+			data = {},
+		},
+		-- 生成成功信息
+		gen_success_data = function(dest, src)
+			dest.messageList = {}
+
+			if not src or #src == 0 then
+				return
+			end
+
+			for _, v in ipairs(src) do
+				table_insert(dest.messageList, {
+					msg_id = v.msg_id,
+					recept_department = v.recept_department,
+					title = v.title,
+					content = v.content,
+					create_time = v.create_time,
+					update_time = v.update_time,
+					delete_time = v.delete_time,
+					user_id = v.user_id,
+					publish_department = v.publish_department,
+					publish_name = v.publish_name,
+					level = utils.switch_message_level(v.level),
+					status = v.status,
+					click_num = v.click_num,
+				})
+			end
+		end,
+		-- 参数错误
+		params_error = {
+			status = 1,
+			message = "参数错误",
+		},
+		-- 数据库错误
+		db_error = {
+			status = 2,
+			message = "数据库错误",
+		}
+	},
+	-- 根据消息等级进行搜索
+	search_messageByLevel = {
+		-- 成功
+		success = {
+			status = 0,
+			message = "成功",
+			data = {},
+		},
+		-- 生成成功信息
+		gen_success_data = function(dest, src)
+			dest.messageList = {}
+
+			if not src or #src == 0 then
+				return
+			end
+
+			for _, v in ipairs(src) do
+				table_insert(dest.messageList, {
+					msg_id = v.msg_id,
+					recept_department = v.recept_department,
+					title = v.title,
+					content = v.content,
+					create_time = v.create_time,
+					update_time = v.update_time,
+					delete_time = v.delete_time,
+					user_id = v.user_id,
+					publish_department = v.publish_department,
+					publish_name = v.publish_name,
+					level = utils.switch_message_level(v.level),
+					status = v.status,
+					click_num = v.click_num,
+				})
+			end
+		end,
+		-- 参数错误
+		params_error = {
+			status = 1,
+			message = "参数错误",
+		},
+		-- 数据库错误
+		db_error = {
+			status = 2,
+			message = "数据库错误",
+		}
+	},
+	-- 删除消息
+	first_deleteMessage = {
+		-- 成功
+		success = {
+			status = 0,
+			message = "成功",
+		},
+		-- 参数错误
+		params_error = {
+			status = 1,
+			message = "参数错误",
+		},
+		-- 数据库错误
+		db_error = {
+			status = 2,
+			message = "数据库错误",
+		},
+		-- 删除失败
+		first_delete_error = {
+			status = 3,
+			message = "删除失败",
+		}
+	},
+	-- 恢复消息
+	message_recover = {
+		-- 成功
+		success = {
+			status = 0,
+			message = "成功",
+		},
+		-- 参数错误
+		params_error = {
+			status = 1,
+			message = "参数错误",
+		},
+		-- 数据库错误
+		db_error = {
+			status = 2,
+			message = "数据库错误",
+		},
+		-- 恢复失败
+		recover_error = {
+			status = 3,
+			message = "恢复失败",
+		}
+	},
+	-- 消息删除
+	message_delete = {
+		-- 成功
+		success = {
+			status = 0,
+			message = "成功",
+		},
+		-- 参数错误
+		params_error = {
+			status = 1,
+			message = "参数错误",
+		},
+		-- 数据库错误
+		db_error = {
+			status = 2,
+			message = "数据库错误",
+		},
+		-- 删除失败
+		delete_error = {
+			status = 3,
+			message = "删除失败",
+		}
+	},
+	-- 更新消息点击率
+	update_messageClick = {
+		-- 成功
+		success = {
+			status = 0,
+			message = "成功",
+		},
+		-- 参数错误
+		params_error = {
+			status = 1,
+			message = "参数错误",
+		},
+		-- 数据库错误
+		db_error = {
+			status = 2,
+			message = "数据库错误",
+		},
+	},
+	-- 获取回收站消息长度
+	get_recycleListLength = {
+		-- 成功
+		success = {
+			status = 0,
+			message = "成功",
+			data = {},
+		},
+		-- 生成成功信息
+		gen_success_data = function(dest, src)
+			dest.count = 0
+			if not src then
+				return
+			end
+			dest.count = tonumber(src["c"])
+		end,
+		-- 参数错误
+		params_error = {
+			status = 1,
+			message = "参数错误",
+		},
+		-- 数据库错误
+		db_error = {
+			status = 2,
+			message = "数据库错误",
+		},
+	},
+	-- 分批获取回收站消息
+	batch_recycleMessageList = {
+		-- 成功
+		success = {
+			status = 0,
+			message = "成功",
+			data = {},
+		},
+		-- 生成成功信息
+		gen_success_data = function(dest, src)
+			dest.messageList = {}
+
+			if not src or #src == 0 then
+				return
+			end
+
+			for _, v in ipairs(src) do
+				table_insert(dest.messageList, {
+					msg_id = v.msg_id,
+					recept_department = v.recept_department,
+					title = v.title,
+					content = v.content,
+					create_time = v.create_time,
+					update_time = v.update_time,
+					delete_time = v.delete_time,
+					user_id = v.user_id,
+					publish_department = v.publish_department,
+					publish_name = v.publish_name,
+					level = utils.switch_message_level(v.level),
+					status = v.status,
+					click_num = v.click_num,
+				})
+			end
+		end,
+		-- 参数错误
+		params_error = {
+			status = 1,
+			message = "参数错误",
+		},
+		-- 数据库错误
+		db_error = {
+			status = 2,
+			message = "数据库错误",
+		}
+	},
+	-- 获取消息列表长度
+	get_messageListLength = {
+		-- 成功
+		success = {
+			status = 0,
+			message = "成功",
+			data = {},
+		},
+		-- 生成成功信息
+		gen_success_data = function(dest, src)
+			dest.count = 0
+			if not src then
+				return
+			end
+			dest.count = tonumber(src["c"])
+		end,
+		-- 参数错误
+		params_error = {
+			status = 1,
+			message = "参数错误",
+		},
+		-- 数据库错误
+		db_error = {
+			status = 2,
+			message = "数据库错误",
+		},
+	},
+	-- 分批获取消息
+	batch_message_list = {
+		-- 成功
+		success = {
+			status = 0,
+			message = "成功",
+			data = {},
+		},
+		-- 生成成功信息
+		gen_success_data = function(dest, src)
+			dest.messageList = {}
+
+			if not src or #src == 0 then
+				return
+			end
+
+			for _, v in ipairs(src) do
+				table_insert(dest.messageList, {
+					msg_id = v.msg_id,
+					recept_department = v.recept_department,
+					title = v.title,
+					content = v.content,
+					create_time = v.create_time,
+					update_time = v.update_time,
+					delete_time = v.delete_time,
+					user_id = v.user_id,
+					publish_department = v.publish_department,
+					publish_name = v.publish_name,
+					level = utils.switch_message_level(v.level) ,
+					status = v.status,
+					click_num = v.click_num,
+				})
+			end
+		end,
+		-- 参数错误
+		params_error = {
+			status = 1,
+			message = "参数错误",
+		},
+		-- 数据库错误
+		db_error = {
+			status = 2,
+			message = "数据库错误",
+		},
+	},
+	-- 根据接收部门获取消息列表长度
+	get_messageListByReceptDepartmentLength = {
+		-- 成功
+		success = {
+			status = 0,
+			message = "成功",
+			data = {},
+		},
+		-- 生成成功信息
+		gen_success_data = function(dest, src)
+			dest.count = 0
+			if not src then
+				return
+			end
+			dest.count = tonumber(src["c"])
+		end,
+		-- 参数错误
+		params_error = {
+			status = 1,
+			message = "参数错误",
+		},
+		-- 数据库错误
+		db_error = {
+			status = 2,
+			message = "数据库错误",
+		},
+	},
+	-- 根据接收部门分批获取消息列表
+	batch_messageListByReceptDepartment = {
+		-- 成功
+		success = {
+			status = 0,
+			message = "成功",
+			data = {},
+		},
+		-- 生成成功信息
+		gen_success_data = function(dest, src)
+			dest.messageList = {}
+
+			if not src or #src == 0 then
+				return
+			end
+
+			for _, v in ipairs(src) do
+				table_insert(dest.messageList, {
+					msg_id = v.msg_id,
+					recept_department = v.recept_department,
+					title = v.title,
+					content = v.content,
+					create_time = v.create_time,
+					update_time = v.update_time,
+					delete_time = v.delete_time,
+					user_id = v.user_id,
+					publish_department = v.publish_department,
+					publish_name = v.publish_name,
+					level = utils.switch_message_level(v.level),
+					status = v.status,
+					click_num = v.click_num,
+				})
+			end
+		end,
+		-- 参数错误
+		params_error = {
+			status = 1,
+			message = "参数错误",
+		},
+		-- 数据库错误
+		db_error = {
+			status = 2,
+			message = "数据库错误",
+		}
 	},
 	-- 获取用户部门信息ids
 	get_userDepartmentIds = {
@@ -943,7 +1352,7 @@ local return_codes = {
 				return
 			end
 			for _, v in ipairs(src) do
-				table_insert(dest.idArr, v.msg_id)
+				table_insert(dest.idArr, v.id)
 			end
 		end,
 		-- 参数错误
@@ -966,7 +1375,31 @@ local return_codes = {
 			data = {},
 		},
 		-- 生成成功信息
-		gen_success_data = parese_message,
+		gen_success_data = function(dest, src)
+			dest.messageList = {}
+
+			if not src or #src == 0 then
+				return
+			end
+
+			for _, v in ipairs(src) do
+				table_insert(dest.messageList, {
+					msg_id = v.msg_id,
+					recept_department = v.recept_department,
+					title = v.title,
+					content = v.content,
+					create_time = v.create_time,
+					update_time = v.update_time,
+					delete_time = v.delete_time,
+					user_id = v.user_id,
+					publish_department = v.publish_department,
+					publish_name = v.publish_name,
+					level = utils.switch_message_level(v.level),
+					status = v.status,
+					click_num = v.click_num,
+				})
+			end
+		end,
 		-- 参数错误
 		params_error = {
 			status = 1,
