@@ -35,7 +35,8 @@ local ban_user_code = require("app.config.return_code").ban_user
 local define_misc = require("app.config.define").misc
 local avatar_dir = define_misc.avatarDir
 local pw = require("lor.lib.utils.password")
-local define_user_identity = require("app.config.define").user_identity
+local define_log_type = require("app.config.define").log_type
+local define_log_level = require("app.config.define").log_level
 local define_user_status = require("app.config.define").user_status
 local utils = require("app.utils.utils")
 
@@ -62,7 +63,7 @@ function M.upload_avatar(req, res, next)
 		return
 	end
 
-	local file_path, _, _, extra, err = lor_utils.multipart_formdata(upload_config, path, true, {["image/jpeg"] = 1})
+	local file_path, _, _, _, extra, err = lor_utils.multipart_formdata(upload_config, path, true, {["image/jpeg"] = 1})
 	if err then
 		res:status(http_inner_error):json(upload_avatar_code.upload_fail)
 		ngx_log(ngx_err, "user model upload avatar multipart formdata error:", err, ", dir:", path)
@@ -572,10 +573,12 @@ function M.deleteUser(req, res, next)
 		"delete from `users` where `id`="..id, 
 		"delete from `user_message_id` where `user_id`="..id,
 		"update `product` set `user_id`=0 where `user_id`="..id,
+		"update `out_product` set `user_id`=0, `out_user_id`=0 where `user_id`="..id.." or `out_user_id`="..id,
 		"update `setting` set `user_id`=0 where `user_id`="..id,
 		"update `message` set `user_id`=0 where `user_id`="..id,
+		"update `files` set `user_id`=0 where `user_id`="..id,
 		"update `log` set `user_id`=0 where `user_id`="..id)
-	local ress, err = mdb:update(sqls)
+	ress, err = mdb:update(sqls)
 	if not ress then
 		res:status(http_inner_error):json(delete_user_code.db_error)
 		ngx_log(ngx_err, "user model delete user delete admin error:", err)
@@ -584,10 +587,11 @@ function M.deleteUser(req, res, next)
 
 	res:status(http_ok):json(delete_user_code.success)
 	ngx_log(ngx_info, "user model delete user success")
+
 	res:eof()
 
 	-- 记录删除日志
-	_, err = mdb:insert("insert into `log` set `user_id`=?,`name`=?,`category`=?,`content`=?,`time`=?,`level`=?", userInfo["id"], userInfo["name"], define_log_type.delete, "删除用户", os_time(), define_log_level.high)
+	local _, err = mdb:insert("insert into `log` set `user_id`=?,`name`=?,`category`=?,`content`=?,`time`=?,`level`=?", userInfo["id"], userInfo["name"], define_log_type.delete_user, "删除用户", os_time(), define_log_level.high)
 	if err then
 		ngx_log(ngx_err, "user model delete user insert log error:", err)
 	end

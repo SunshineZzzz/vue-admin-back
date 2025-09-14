@@ -1874,6 +1874,174 @@ local return_codes = {
 			message = "数据库错误",
 		},
 	},
+	-- 上传文件
+	upload_file = {
+		-- 上传成功
+		success = {
+			status = 0,
+			message = "上传成功",
+			data = {},
+		},
+		-- 上传失败
+		upload_fail = {
+			status = 1,
+			message = "上传失败",
+			data = {},
+		},
+		-- 参数错误
+		params_error = {
+			status = 2,
+			message = "参数错误",
+		},
+		-- 数据库错误
+		db_error = {
+			status = 3,
+			message = "数据库错误",
+		},
+	},
+	-- 更新下载次数
+	update_downloadNum = {
+		-- 下载成功
+		success = {
+			status = 0,
+			message = "下载成功",
+			data = {},
+		},
+		-- 数据库错误
+		db_error = {
+			status = 1,
+			message = "数据库错误",
+		},
+		-- 参数错误
+		params_error = {
+			status = 2,
+			message = "参数错误",
+		},
+	},
+	-- 获取文件列表
+	file_listLength = {
+		-- 成功
+		success = {
+			status = 0,
+			message = "成功",
+			data = {},
+		},
+		-- 生成成功信息
+		gen_success_data = function(dest, src)
+			dest.count = 0
+			if not src then
+				return
+			end
+
+			dest.count = tonumber(src["c"])
+		end,
+		-- 数据库错误
+		db_error = {
+			status = 1,
+			message = "数据库错误",
+		},
+	},
+	-- 分批获取文件列表 
+	file_getFileList = {
+		-- 成功
+		success = {
+			status = 0,
+			message = "成功",
+			data = {},
+		},
+		-- 生成成功信息
+		gen_success_data = function(dest, src)
+			dest.fileList = {}
+
+			if not src or #src == 0 then
+				return
+			end
+
+			for _, v in ipairs(src) do
+				table_insert(dest.fileList, {
+					file_id = tonumber(v.id),
+					user_id = tonumber(v.user_id),
+					user_name = v.user_name,
+					name = v.name,
+					url = v.url,
+					size = tonumber(v.size),
+					type = v.type,
+					download_number = tonumber(v.download_number),
+					create_time = tonumber(v.create_time),
+				})
+			end
+		end,
+		-- 参数错误
+		params_error = {
+			status = 1,
+			message = "参数错误",
+		},
+		-- 数据库错误
+		db_error = {
+			status = 2,
+			message = "数据库错误",
+		},
+	},
+	-- 根据名称搜索文件
+	search_fileByName = {
+		-- 成功
+		success = {
+			status = 0,
+			message = "成功",
+			data = {},
+		},
+		-- 生成成功信息
+		gen_success_data = function(dest, src)
+			dest.fileList = {}
+
+			if not src or #src == 0 then
+				return
+			end
+
+			for _, v in ipairs(src) do
+				table_insert(dest.fileList, {
+					file_id = tonumber(v.id),
+					user_id = tonumber(v.user_id),
+					user_name = v.user_name,
+					name = v.name,
+					url = v.url,
+					size = tonumber(v.size),
+					type = v.type,
+					download_number = tonumber(v.download_number),
+					create_time = tonumber(v.create_time),
+				})
+			end
+		end,
+		-- 参数错误
+		params_error = {
+			status = 1,
+			message = "参数错误",
+		},
+		-- 数据库错误
+		db_error = {
+			status = 2,
+			message = "数据库错误",
+		},
+	},
+	-- 删除文件
+	delete_file = {
+		-- 成功
+		success = {
+			status = 0,
+			message = "成功",
+			data = {},
+		},
+		-- 参数错误
+		params_error = {
+			status = 1,
+			message = "参数错误",
+		},
+		-- 数据库错误
+		db_error = {
+			status = 2,
+			message = "数据库错误",
+		},
+	}
 }
 
 return return_codes

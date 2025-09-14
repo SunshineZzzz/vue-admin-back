@@ -102,7 +102,7 @@ function M.login(req, res, next)
 	res:eof()
 
 	-- 记录登录日志
-	_, err = mdb:insert("insert into `log` set `user_id`=?,`name`=?,`category`=?,`content`=?,`time`=?,`level`=?", ress[1][1]["id"], ress[1][1]["name"], define_log_type.login, content, os_time(), define_log_level.low)
+	local _, err = mdb:insert("insert into `log` set `user_id`=?,`name`=?,`category`=?,`content`=?,`time`=?,`level`=?", ress[1][1]["id"], ress[1][1]["name"], define_log_type.login, content, os_time(), define_log_level.low)
 	if err then
 		ngx_log(ngx_err, "login model login insert log error:", err)
 	end

@@ -48,7 +48,7 @@ function M.uploadSwiper(req, res, next)
 		return
 	end
 
-	local file_path, origin_filename, file_type, extraParam, err = lor_utils.multipart_formdata(upload_config, path, false, {["image/jpeg"] = 1})
+	local file_path, origin_filename, _, file_type, extraParam, err = lor_utils.multipart_formdata(upload_config, path, false, {["image/jpeg"] = 1})
 	if err then
 		res:status(http_inner_error):json(upload_swiper_code.upload_fail)
 		ngx_log(ngx_err, "set model upload swiper multipart formdata error:", err, ", dir:", path)
@@ -116,7 +116,7 @@ function M.uploadCompanyIntroducePicture(req, res, next)
 		return
 	end
 
-	local file_path, origin_filename, _, _, err = lor_utils.multipart_formdata(upload_config, path, false, {["image/jpeg"] = 1})
+	local file_path, origin_filename, _, _, _, err = lor_utils.multipart_formdata(upload_config, path, false, {["image/jpeg"] = 1})
 	if err then
 		res:status(http_inner_error):json(upload_companyIntroducePicture_code.upload_fail)
 		ngx_log(ngx_err, "set model upload company introduce picture multipart formdata error:", err, ", dir:", file_path)

@@ -13,6 +13,10 @@ return {
 		avatarDir = "avatar",
 		-- 轮播图上传目录
 		swiperDir = "swiper",
+		-- 文件上传目录
+		fileDir = "file",
+		-- 公司名称上传目录
+		companyNameDir = "companyName",
 		-- 公司简介上传目录
 		companyIntroduceDir = "companyIntroduce",
 	},
@@ -102,9 +106,13 @@ return {
 	log_type = {
 		-- 登录
 		login = 0,
-		-- 删除
-		delete = 1,
+		-- 删除用户
+		delete_user = 1,
 		-- 产品审核
 		product_audit = 2,
+		-- 上传文件
+		file_upload = 3,
+		-- 删除文件
+		file_delete = 4,
 	},
 }

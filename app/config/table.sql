@@ -140,3 +140,19 @@ create table `log` (
   key `name` (`name`),
   key `category` (`category`)
 ) engine=innodb default charset=utf8mb4;
+
+-- 文件
+drop table if exists `files`;
+create table `files` (
+  `id` bigint(20) unsigned not null auto_increment comment '自增id',
+  `user_id` bigint(20) not null default 0 comment '用户id',
+  `user_name` varchar(255) not null default '' comment '用户名',
+  `name` varchar(255) not null default '' comment '文件名',
+  `url` varchar(1024) not null default '' comment '文件路径',
+  `size` int(10) unsigned not null default 0 comment '文件大小',
+  `type` varchar(255) not null default '' comment '文件类型',
+  `download_number` int(10) unsigned not null default 0 comment '下载次数',
+  `create_time` bigint(20) not null default 0 comment '创建时间',
+  primary key (`id`),
+  key `user_id` (`user_id`)
+) engine=innodb default charset=utf8mb4;
