@@ -51,6 +51,7 @@ local return_codes = {
 			dest.create_time = tonumber(src.create_time)
 			dest.update_time = tonumber(src.update_time)
 			dest.status = tonumber(src.status)
+			dest.routerData = utils.switch_router_identity(src.identity)
 		end,
 		-- 参数错误
 		params_error = {

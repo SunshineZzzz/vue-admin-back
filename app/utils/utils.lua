@@ -7,6 +7,7 @@ local define_product_status = require("app.config.define").product_status
 local define_message_level = require("app.config.define").message_level
 local define_log_level = require("app.config.define").log_level
 local define_log_type = require("app.config.define").log_type
+local define_router = require("app.config.define").router
 
 local Utils = {}
 
@@ -182,6 +183,22 @@ function Utils.switch_log_type(typeStr)
 	end
 	-- "删除文件"
 	return define_log_type.file_delete
+end
+
+-- 身份转化为对应路由
+function Utils.switch_router_identity(identify)
+	if identify == define_user_identity.normal then
+		return define_router.normal_user
+	elseif identify == define_user_identity.userMgr then
+		return define_router.user_admin
+	elseif identify == define_user_identity.productMgr then
+		return define_router.product_admin
+	elseif identify == define_user_identity.messageMgr then
+		return define_router.message_admin
+	else
+		-- define_user_identity.root
+		return define_router.super_admin
+	end
 end
 
 return Utils
