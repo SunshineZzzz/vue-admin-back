@@ -1,11 +1,12 @@
 -- Comment: 工具函数
 
+local table_concat = table.concat
 local sgmatch = ngx.re.gmatch
 local define_user_identity = require("app.config.define").user_identity
 local define_product_status = require("app.config.define").product_status
 local define_message_level = require("app.config.define").message_level
 local define_log_level = require("app.config.define").log_level
-local table_concat = table.concat
+local define_log_type = require("app.config.define").log_type
 
 local Utils = {}
 
@@ -109,7 +110,7 @@ function Utils.switch_message_level_str(level)
 end
 
 -- 日志等级转化为对应字符串
-function Utils.switch_log_level(level)
+function Utils.switch_log_level_str(level)
 	if level == define_log_level.low then
 		return "低级"
 	end
@@ -145,6 +146,42 @@ function Utils.swicth_product_sType(status)
 	else
 		return nil, "未知状态"
 	end
+end
+
+-- 操作日志类型转字符串
+function Utils.switch_log_type_str(nType)
+	if nType == define_log_type.login then
+		return "登录"
+	end
+	if nType == define_log_type.delete_user then
+		return "删除用户"
+	end
+	if nType == define_log_type.product_audit then
+		return "产品审核"
+	end
+	if nType == define_log_type.file_upload then
+		return "上传文件"
+	end
+	-- define_log_type.file_delete
+	return "删除文件"
+end
+
+-- 操作日志字符串转化为类型
+function Utils.switch_log_type(typeStr)
+	if typeStr == "登录" then
+		return define_log_type.login
+	end
+	if typeStr == "删除用户" then
+		return define_log_type.delete_user
+	end
+	if typeStr == "产品审核" then
+		return define_log_type.product_audit
+	end
+	if typeStr == "上传文件" then
+		return define_log_type.file_upload
+	end
+	-- "删除文件"
+	return define_log_type.file_delete
 end
 
 return Utils

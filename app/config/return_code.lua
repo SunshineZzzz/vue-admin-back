@@ -2041,7 +2041,127 @@ local return_codes = {
 			status = 2,
 			message = "数据库错误",
 		},
-	}
+	},
+	-- 获取操作日志类别
+	get_oLogType = {
+		-- 成功
+		success = {
+			status = 0,
+			message = "成功",
+			data = {},
+		},
+	},
+	-- 获取操作日志列表长度
+	get_oLogListLength = {
+		-- 成功
+		success = {
+			status = 0,
+			message = "成功",
+			data = {},
+		},
+		-- 参数错误
+		params_error = {
+			status = 1,
+			message = "参数错误",
+		},
+		-- 数据库错误
+		db_error = {
+			status = 2,
+			message = "数据库错误",
+		},
+	},
+	-- 分批获取操作日志列表
+	batch_getOlogList = {
+		-- 成功
+		success = {
+			status = 0,
+			message = "成功",
+			data = {},
+		},
+		-- 生成成功信息
+		gen_success_data = function(dest, src)
+			dest.ologList = {}
+
+			if not src or #src == 0 then
+				return
+			end
+
+			for _, v in ipairs(src) do
+				table_insert(dest.ologList, {
+					id = tonumber(v.id),
+  					user_id = tonumber(v.user_id),
+  					user_name = v.name,
+					category = utils.switch_log_type_str(v.category),
+					content = v.content,
+					time = tonumber(v.time),
+					level = utils.switch_log_level_str(v.level),
+				})
+			end
+		end,
+		-- 参数错误
+		params_error = {
+			status = 1,
+			message = "参数错误",
+		},
+		-- 数据库错误
+		db_error = {
+			status = 2,
+			message = "数据库错误",
+		},
+	},
+	-- 清空操作日志
+	clearOLogList = {
+		-- 成功
+		success = {
+			status = 0,
+			message = "成功",
+			data = {},
+		},
+		-- 数据库错误
+		db_error = {
+			status = 1,
+			message = "数据库错误",
+		},
+	},
+	-- 按类型获取操作日志列表
+	search_OLogListByType = {
+		-- 成功
+		success = {
+			status = 0,
+			message = "成功",
+			data = {},
+		},
+		-- 生成成功信息
+		gen_success_data = function(dest, src)
+			dest.ologList = {}
+
+			if not src or #src == 0 then
+				return
+			end
+
+			for _, v in ipairs(src) do
+				table_insert(dest.ologList, {
+					id = tonumber(v.id),
+  					user_id = tonumber(v.user_id),
+  					user_name = v.name,
+					category = utils.switch_log_type_str(v.category),
+					content = v.content,
+					time = tonumber(v.time),
+					level = utils.switch_log_level_str(v.level),
+				})
+			end
+		end,
+		-- 参数错误
+		params_error = {
+			status = 1,
+			message = "参数错误",
+		},
+		-- 数据库错误
+		db_error = {
+			status = 2,
+			message = "数据库错误",
+		},
+	},
 }
 
 return return_codes
