@@ -6,6 +6,7 @@ logs
 proxy_temp
 tmp
 uwsgi_temp
+dist/
 
 # Compiled Lua sources
 luac.out
